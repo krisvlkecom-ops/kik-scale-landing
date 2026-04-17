@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 .claude/skills/ui-ux-pro-max/scripts/search.py \"beauty DTC agency ugc paid ads bold minimal dark\" --design-system -p \"KIK Scale\")",
+      "Bash(/c/Users/crist/AppData/Local/Microsoft/WindowsApps/python.exe .claude/skills/ui-ux-pro-max/scripts/search.py \"beauty DTC agency ugc paid ads bold minimal dark\" --design-system -p \"KIK Scale\")",
+      "Read(//c/Users/crist/AppData/Local/Programs/**)",
+      "Bash(ls /c/Python*)",
+      "Read(//c/Users/crist/**)",
+      "Bash(command -v conda)",
+      "Bash(command -v uv)"
+    ]
+  }
+}

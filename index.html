@@ -1,0 +1,2110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KIK Scale — Scale Your Brand's Ads</title>
+  <meta name="description" content="We help e-commerce brands produce UGC content that converts and scale paid ads — using AI. Zero risk. Results first.">
+
+  <!-- Google Fonts: Outfit (display — clean single-story g) + Manrope (body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            dark:  '#161414',
+            cream: '#FFF0EB',
+            red:   '#C50A07',
+          },
+          fontFamily: {
+            display: ['Outfit', 'sans-serif'],
+            body:    ['Manrope', 'sans-serif'],
+          },
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* ══════════════════════════════════════════════════════════════
+       BASE
+    ══════════════════════════════════════════════════════════════ */
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 88px; }
+    body {
+      background-color: #161414;
+      font-family: 'Manrope', sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ══════════════════════════════════════════════════════════════
+       NOISE / GRAIN TEXTURE — dark sections
+       SVG feTurbulence rendered as a data-URI overlay
+    ══════════════════════════════════════════════════════════════ */
+    .grain::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0.028;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-repeat: repeat;
+      background-size: 200px 200px;
+    }
+    /* Ensure content inside grain sections sits above the overlay */
+    .grain > * { position: relative; z-index: 2; }
+
+    /* ══════════════════════════════════════════════════════════════
+       HERO ENTRANCE ANIMATIONS (fire immediately on load)
+    ══════════════════════════════════════════════════════════════ */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(28px); }
+      to   { opacity: 1; transform: translateY(0);    }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    .anim-fade-up { animation: fadeUp 0.85s cubic-bezier(0.16, 1, 0.3, 1) both; }
+    .anim-fade-in { animation: fadeIn 0.7s ease both; }
+    .d-100 { animation-delay:  100ms; }
+    .d-200 { animation-delay:  200ms; }
+    .d-300 { animation-delay:  300ms; }
+    .d-400 { animation-delay:  400ms; }
+    .d-500 { animation-delay:  500ms; }
+    .d-650 { animation-delay:  650ms; }
+
+    /* ── Word-by-word headline animation ── */
+    .word {
+      display: inline-block;
+      opacity: 0;
+      transform: translateY(22px);
+      animation: fadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+      padding-bottom: 0.08em; /* prevents descender clip on g, y, p */
+    }
+    .w1  { animation-delay: 120ms; }
+    .w2  { animation-delay: 195ms; }
+    .w3  { animation-delay: 270ms; }
+    .w4  { animation-delay: 345ms; }
+    .w5  { animation-delay: 420ms; }
+    .w6  { animation-delay: 495ms; }
+    .w7  { animation-delay: 570ms; }
+    .w8  { animation-delay: 645ms; }
+
+    /* ── "Limited availability" subtle pulse ── */
+    @keyframes availPulse {
+      0%, 100% { opacity: 0.30; }
+      50%       { opacity: 0.50; }
+    }
+    .avail-pulse {
+      animation: availPulse 3.5s ease-in-out infinite;
+    }
+
+    /* ── CTA glow pulse on hover ── */
+    @keyframes glowPulse {
+      0%   { box-shadow: 0 0 18px rgba(197,10,7,0.40), 0 4px 14px rgba(197,10,7,0.25); }
+      50%  { box-shadow: 0 0 36px rgba(197,10,7,0.65), 0 6px 22px rgba(197,10,7,0.40); }
+      100% { box-shadow: 0 0 18px rgba(197,10,7,0.40), 0 4px 14px rgba(197,10,7,0.25); }
+    }
+
+    /* ══════════════════════════════════════════════════════════════
+       SCROLL-REVEAL (sections below hero)
+    ══════════════════════════════════════════════════════════════ */
+    .reveal {
+      opacity: 0;
+      transform: translateY(32px);
+      transition: opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1),
+                  transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .reveal.reveal-stagger-1 { transition-delay:  90ms; }
+    .reveal.reveal-stagger-2 { transition-delay: 190ms; }
+    .reveal.reveal-stagger-3 { transition-delay: 290ms; }
+    /* Process step stagger */
+    .reveal.reveal-step-2    { transition-delay: 120ms; }
+    .reveal.reveal-step-3    { transition-delay: 240ms; }
+    .reveal.reveal-step-4    { transition-delay: 360ms; }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .word { animation: none !important; opacity: 1 !important; transform: none !important; }
+      .anim-fade-up, .anim-fade-in { animation: none !important; opacity: 1 !important; transform: none !important; }
+      .avail-pulse { animation: none !important; opacity: 0.4 !important; }
+      .reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
+    }
+
+    /* ══════════════════════════════════════════════════════════════
+       NAVBAR — smooth glass transition on scroll (#14)
+    ══════════════════════════════════════════════════════════════ */
+    #navbar {
+      transition: background-color 400ms cubic-bezier(0.4,0,0.2,1),
+                  backdrop-filter  400ms cubic-bezier(0.4,0,0.2,1),
+                  border-color     400ms cubic-bezier(0.4,0,0.2,1);
+    }
+    #navbar.scrolled {
+      background-color: rgba(22, 20, 20, 0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(255, 240, 235, 0.07);
+    }
+
+    /* Nav links — smooth underline + active (#9) */
+    .nav-link {
+      position: relative;
+      transition: color 200ms ease;
+    }
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      bottom: -3px; left: 0;
+      width: 0; height: 1px;
+      background: #FFF0EB;
+      transition: width 250ms cubic-bezier(0.4,0,0.2,1);
+    }
+    .nav-link:hover::after,
+    .nav-link:focus-visible::after { width: 100%; }
+    .nav-link.active { color: #FFF0EB !important; }
+    .nav-link.active::after { width: 100%; }
+
+    /* ══════════════════════════════════════════════════════════════
+       CTA BUTTONS — glow pulse on hover (#6)
+    ══════════════════════════════════════════════════════════════ */
+    .btn-red {
+      background-color: #C50A07;
+      transition: background-color 200ms ease, box-shadow 200ms ease, transform 120ms ease;
+    }
+    .btn-red:hover {
+      background-color: #b30906;
+      animation: glowPulse 1.6s ease-in-out infinite;
+    }
+    .btn-red:active { transform: scale(0.975); animation: none; }
+
+    /* ══════════════════════════════════════════════════════════════
+       PAIN-POINT CARDS — lift + shadow (#8)
+    ══════════════════════════════════════════════════════════════ */
+    .pain-card {
+      transition: transform 280ms cubic-bezier(0.34,1.56,0.64,1),
+                  box-shadow 280ms ease;
+    }
+    .pain-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 16px 40px rgba(22,20,20,0.14), 0 4px 10px rgba(22,20,20,0.08) !important;
+    }
+
+    /* ══════════════════════════════════════════════════════════════
+       SERVICE ROWS — left accent bar slide + bg wash (#7)
+    ══════════════════════════════════════════════════════════════ */
+    .service-row {
+      position: relative;
+      border-radius: 16px;
+      margin-left: -16px; margin-right: -16px;
+      padding-left: 16px; padding-right: 16px;
+      transition: background-color 240ms ease, padding-left 240ms ease;
+    }
+    .service-row::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 20%; bottom: 20%;
+      width: 2px;
+      background: #C50A07;
+      border-radius: 2px;
+      opacity: 0;
+      transition: opacity 240ms ease, top 240ms ease, bottom 240ms ease;
+    }
+    .service-row:hover { background-color: rgba(255,240,235,0.035); padding-left: 24px; }
+    .service-row:hover::before { opacity: 0.7; top: 28%; bottom: 28%; }
+
+    /* Differentiator rows — same treatment */
+    .differ-row {
+      position: relative;
+      border-radius: 16px;
+      margin-left: -16px; margin-right: -16px;
+      padding-left: 16px; padding-right: 16px;
+      transition: background-color 240ms ease, padding-left 240ms ease;
+    }
+    .differ-row::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 20%; bottom: 20%;
+      width: 2px;
+      background: #C50A07;
+      border-radius: 2px;
+      opacity: 0;
+      transition: opacity 240ms ease, top 240ms ease, bottom 240ms ease;
+    }
+    .differ-row:hover { background-color: rgba(255,240,235,0.03); padding-left: 24px; }
+    .differ-row:hover::before { opacity: 0.6; top: 28%; bottom: 28%; }
+
+    /* ══════════════════════════════════════════════════════════════
+       MOBILE MENU
+    ══════════════════════════════════════════════════════════════ */
+    #mobile-menu.hidden { display: none; }
+
+    /* ══════════════════════════════════════════════════════════════
+       SCROLL CARET
+    ══════════════════════════════════════════════════════════════ */
+    @keyframes caretBounce {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(7px); }
+    }
+    .caret-bounce { animation: caretBounce 2.2s ease-in-out infinite; }
+    @media (prefers-reduced-motion: reduce) { .caret-bounce { animation: none; } }
+
+    /* ══════════════════════════════════════════════════════════════
+       BACK-TO-TOP BUTTON
+    ══════════════════════════════════════════════════════════════ */
+    #back-to-top {
+      position: fixed;
+      bottom: 28px; right: 24px;
+      z-index: 40;
+      display: flex; align-items: center; justify-content: center;
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      background-color: #C50A07;
+      color: #FFF0EB;
+      opacity: 0;
+      transform: translateY(12px);
+      pointer-events: none;
+      transition: opacity 280ms ease, transform 280ms ease,
+                  background-color 180ms ease, box-shadow 180ms ease;
+      box-shadow: 0 4px 18px rgba(197,10,7,0.4);
+    }
+    #back-to-top.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
+    #back-to-top:hover { background-color: #a80805; box-shadow: 0 6px 28px rgba(197,10,7,0.55); }
+    #back-to-top:active { transform: scale(0.92); }
+    @media (prefers-reduced-motion: reduce) {
+      #back-to-top { transition: opacity 250ms ease; transform: none !important; }
+    }
+
+    /* ══════════════════════════════════════════════════════════════
+       UGC MARQUEE CAROUSEL — pure CSS, no JS, no hover pause
+       The track contains 12 cards (6 originals + 6 exact dupes).
+       Animating translateX(0 → -50%) scrolls exactly one set and
+       snaps back invisibly — a perfect seamless loop.
+    ══════════════════════════════════════════════════════════════ */
+    .carousel-track {
+      display: flex;
+      width: max-content;
+      gap: 16px;
+      animation: scroll 30s linear infinite;
+      will-change: transform;
+    }
+    @keyframes scroll {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .carousel-track { animation: none; }
+    }
+
+    /* ══════════════════════════════════════════════════════════════
+       FORM INPUTS
+    ══════════════════════════════════════════════════════════════ */
+    #contact-form input::placeholder,
+    #contact-form textarea::placeholder { color: rgba(255,240,235,0.22); }
+
+    /* ══════════════════════════════════════════════════════════════
+       PROBLEM / SOLUTION CAROUSEL
+    ══════════════════════════════════════════════════════════════ */
+
+    /* Progress bar */
+    #prob-progress-track {
+      height: 3px;
+      border-radius: 9999px;
+      background: rgba(22,20,20,0.1);
+      overflow: hidden;
+    }
+    #prob-progress-fill {
+      height: 100%;
+      background: #C50A07;
+      border-radius: 9999px;
+      transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* Arrow buttons — dark on light background */
+    .prob-arrow {
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      border: 1px solid rgba(22,20,20,0.18);
+      background: transparent;
+      color: rgba(22,20,20,0.45);
+      cursor: pointer;
+      transition: border-color 200ms ease, color 200ms ease, background-color 200ms ease, transform 120ms ease;
+    }
+    .prob-arrow:hover { border-color: rgba(22,20,20,0.5); color: #161414; background-color: rgba(22,20,20,0.05); }
+    .prob-arrow:active { transform: scale(0.9); }
+
+    /* Solution slide-down reveal */
+    .solution-reveal {
+      max-height: 0;
+      overflow: hidden;
+      opacity: 0;
+      transition: max-height 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+                  opacity 0.38s ease;
+    }
+    .solution-reveal.open { max-height: 600px; opacity: 1; }
+
+    /* Card slide-in on problem switch */
+    @keyframes slideInFromRight {
+      from { opacity: 0; transform: translateX(30px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes slideInFromLeft {
+      from { opacity: 0; transform: translateX(-30px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    .problem-card-inner.slide-next { animation: slideInFromRight 0.3s cubic-bezier(0.16,1,0.3,1) both; }
+    .problem-card-inner.slide-prev { animation: slideInFromLeft  0.3s cubic-bezier(0.16,1,0.3,1) both; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .solution-reveal { transition: none; max-height: none; }
+      .problem-card-inner.slide-next,
+      .problem-card-inner.slide-prev { animation: none; }
+      #prob-progress-fill { transition: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       NAVIGATION
+  ════════════════════════════════════════════════════════════════════ -->
+  <nav id="navbar" class="fixed top-0 left-0 right-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16 md:h-20">
+
+        <!-- Logo -->
+        <a
+          href="#"
+          class="font-display font-bold text-xl md:text-2xl text-cream tracking-tight cursor-pointer
+                 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cream/40 rounded-sm"
+          aria-label="KIK Scale — home"
+        >
+          KIK Scale
+        </a>
+
+        <!-- Desktop links -->
+        <div class="hidden md:flex items-center gap-8">
+          <a href="#services"     class="nav-link font-body text-cream/60 hover:text-cream text-sm font-medium tracking-wide cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cream/40 rounded-sm">Services</a>
+          <a href="#how-it-works" class="nav-link font-body text-cream/60 hover:text-cream text-sm font-medium tracking-wide cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cream/40 rounded-sm">How It Works</a>
+          <a href="#results"      class="nav-link font-body text-cream/60 hover:text-cream text-sm font-medium tracking-wide cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cream/40 rounded-sm">Results</a>
+          <a
+            href="#contact"
+            class="btn-red inline-flex items-center px-5 py-2.5 rounded-lg text-cream text-sm font-semibold font-body cursor-pointer min-h-[44px]
+                   focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red/70 focus-visible:ring-offset-2 focus-visible:ring-offset-dark"
+          >
+            Book a Call
+          </a>
+        </div>
+
+        <!-- Mobile hamburger -->
+        <button
+          id="menu-btn"
+          class="md:hidden flex items-center justify-center size-10 text-cream/60 hover:text-cream cursor-pointer
+                 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cream/40 rounded
+                 transition-colors duration-200"
+          aria-label="Open navigation menu"
+          aria-expanded="false"
+          aria-controls="mobile-menu"
+        >
+          <!-- Hamburger icon -->
+          <svg id="icon-open" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <line x1="3" y1="6"  x2="21" y2="6"/>
+            <line x1="3" y1="12" x2="21" y2="12"/>
+            <line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+          <!-- Close icon -->
+          <svg id="icon-close" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="hidden" aria-hidden="true">
+            <line x1="18" y1="6"  x2="6" y2="18"/>
+            <line x1="6"  y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile drawer -->
+    <div
+      id="mobile-menu"
+      class="hidden md:hidden"
+      style="background: rgba(22,20,20,0.97); backdrop-filter: blur(16px); border-top: 1px solid rgba(255,240,235,0.08);"
+    >
+      <div class="max-w-7xl mx-auto px-4 py-7 flex flex-col gap-6">
+        <a href="#services"     class="font-body text-cream/65 hover:text-cream text-base font-medium tracking-wide cursor-pointer transition-colors duration-200">Services</a>
+        <a href="#how-it-works" class="font-body text-cream/65 hover:text-cream text-base font-medium tracking-wide cursor-pointer transition-colors duration-200">How It Works</a>
+        <a href="#results"      class="font-body text-cream/65 hover:text-cream text-base font-medium tracking-wide cursor-pointer transition-colors duration-200">Results</a>
+        <a
+          href="#contact"
+          class="btn-red inline-flex items-center justify-center px-5 py-3.5 rounded-xl text-cream text-base font-semibold font-body cursor-pointer min-h-[52px]
+                 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red/70"
+        >
+          Book a Call
+        </a>
+      </div>
+    </div>
+  </nav>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       HERO SECTION
+  ════════════════════════════════════════════════════════════════════ -->
+  <section
+    id="hero"
+    class="grain relative min-h-screen flex flex-col items-center justify-center overflow-hidden"
+    style="background-color: #161414;"
+  >
+
+    <!-- Subtle dot-grid texture -->
+    <div
+      class="absolute inset-0 pointer-events-none"
+      style="
+        background-image: radial-gradient(circle, rgba(255,240,235,0.06) 1px, transparent 1px);
+        background-size: 44px 44px;
+      "
+      aria-hidden="true"
+    ></div>
+
+    <!-- Hero headline radial glow (#11) — two-layer depth -->
+    <div
+      class="absolute pointer-events-none"
+      style="
+        top: 44%; left: 50%;
+        transform: translate(-50%, -50%);
+        width: min(1100px, 120vw);
+        height: 600px;
+        background: radial-gradient(ellipse at center,
+          rgba(197,10,7,0.12) 0%,
+          rgba(197,10,7,0.04) 40%,
+          transparent 70%);
+      "
+      aria-hidden="true"
+    ></div>
+    <!-- Inner tighter glow for depth -->
+    <div
+      class="absolute pointer-events-none"
+      style="
+        top: 42%; left: 50%;
+        transform: translate(-50%, -50%);
+        width: min(500px, 80vw);
+        height: 280px;
+        background: radial-gradient(ellipse at center,
+          rgba(197,10,7,0.07) 0%,
+          transparent 65%);
+      "
+      aria-hidden="true"
+    ></div>
+
+    <!-- Hero content -->
+    <div class="relative z-10 max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 text-center pt-28 pb-20">
+
+      <!-- Eyebrow badge -->
+      <div class="anim-fade-up d-100 inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full border border-cream/12 mb-10 cursor-default">
+        <span class="block size-1.5 rounded-full bg-red shrink-0" aria-hidden="true"></span>
+        <span class="font-body text-cream/45 text-xs tracking-[0.14em] uppercase font-medium">E-Commerce Ad Agency</span>
+      </div>
+
+      <!-- Headline — word-by-word entrance (#1) -->
+      <h1
+        class="font-display font-bold text-cream tracking-tight mb-8"
+        style="font-size: clamp(2.6rem, 7vw, 5.25rem); line-height: 1.18; padding-bottom: 0.1em;"
+        aria-label="Scale Your Brand's Ads Without the Headache"
+      >
+        <span class="word w1">Scale</span><span> </span>
+        <span class="word w2">Your</span><span> </span>
+        <span class="word w3">Brand's</span><span>&nbsp;</span><span class="word w4">Ads</span>
+        <br>
+        <span class="word w5" style="color: #C50A07;">Without</span><span> </span>
+        <span class="word w6">the</span><span> </span>
+        <span class="word w7">Headache</span>
+      </h1>
+
+      <!-- Subheadline -->
+      <p
+        class="anim-fade-up d-300 font-body text-cream/50 leading-relaxed mb-12 max-w-2xl mx-auto"
+        style="font-size: clamp(1rem, 2.2vw, 1.175rem);"
+      >
+        We help e-commerce brands produce UGC content that converts and scale paid ads — using AI.
+        Zero risk. Results first.
+      </p>
+
+      <!-- CTA block -->
+      <div class="anim-fade-up d-400 flex flex-col items-center gap-4">
+        <a
+          href="#contact"
+          class="btn-red group inline-flex items-center gap-3 px-8 py-4 rounded-xl text-cream font-display font-semibold cursor-pointer
+                 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red/70 focus-visible:ring-offset-2 focus-visible:ring-offset-dark"
+          style="font-size: clamp(0.95rem, 2vw, 1.1rem); min-height: 56px;"
+        >
+          Book a Free Discovery Call
+          <svg
+            width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+            class="transition-transform duration-200 group-hover:translate-x-1"
+            aria-hidden="true"
+          >
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </a>
+
+        <!-- Urgency line — subtle pulse (#13) -->
+        <p class="avail-pulse anim-fade-up d-500 font-body text-cream/30 text-sm font-medium tracking-wide">
+          We take 1 client every 2 months — limited availability
+        </p>
+      </div>
+
+    </div>
+
+    <!-- Scroll caret -->
+    <div class="anim-fade-in d-650 absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2" aria-hidden="true">
+      <span class="font-body text-cream/20 text-[10px] tracking-[0.18em] uppercase">Scroll</span>
+      <svg class="caret-bounce text-cream/20" width="16" height="24" viewBox="0 0 16 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M8 4v16M2 14l6 6 6-6"/>
+      </svg>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       PROBLEMS SECTION — Interactive Problem / Solution Carousel
+  ════════════════════════════════════════════════════════════════════ -->
+  <section id="services" style="background-color: #FFF0EB; position: relative; overflow: hidden;">
+
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32">
+
+      <!-- Section heading -->
+      <div class="reveal text-center mb-12 md:mb-14">
+        <h2
+          class="font-display font-bold"
+          style="color: #161414; font-size: clamp(2.2rem, 5vw, 3.75rem); line-height: 1.15;"
+        >
+          The Problems Scaling<br class="hidden sm:block"> Brands Face
+        </h2>
+        <p
+          class="font-body mt-5 max-w-lg mx-auto"
+          style="color: rgba(22,20,20,0.5); font-size: clamp(0.92rem, 2vw, 1.025rem); line-height: 1.75;"
+        >
+          Click through 5 real challenges — and exactly how we solve them.
+        </p>
+      </div>
+
+      <!-- Progress bar + step label -->
+      <div class="reveal mb-10">
+        <div class="flex justify-between items-center mb-3">
+          <span class="font-body font-semibold uppercase tracking-[0.13em]" style="color: rgba(22,20,20,0.38); font-size: 0.68rem;">
+            Problem <span id="prob-step-current">1</span> of 5
+          </span>
+        </div>
+        <div id="prob-progress-track">
+          <div id="prob-progress-fill" style="width: 20%;"></div>
+        </div>
+      </div>
+
+      <!-- Card + desktop arrows -->
+      <div class="reveal flex items-start gap-3 md:gap-5">
+
+        <!-- Left arrow (desktop) -->
+        <button
+          id="prob-prev"
+          class="prob-arrow hidden md:flex"
+          style="margin-top: 5.75rem;"
+          aria-label="Previous problem"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M19 12H5M12 5l-7 7 7 7"/>
+          </svg>
+        </button>
+
+        <!-- Problem card -->
+        <div
+          id="problem-card"
+          class="flex-1 rounded-2xl p-7 md:p-10"
+          style="background: #ffffff;
+                 border: 1px solid rgba(22,20,20,0.08);
+                 box-shadow: 0 8px 40px rgba(22,20,20,0.07), 0 2px 8px rgba(22,20,20,0.04);
+                 position: relative; overflow: hidden;"
+          role="tabpanel"
+          aria-live="polite"
+          aria-atomic="true"
+        >
+          <!-- Faded background number -->
+          <div
+            id="prob-bg-num"
+            aria-hidden="true"
+            class="absolute select-none pointer-events-none font-display font-bold"
+            style="right: -0.05em; top: -0.15em;
+                   font-size: clamp(7rem, 20vw, 11rem);
+                   color: rgba(22,20,20,0.04); line-height: 1; z-index: 0;"
+          >01</div>
+
+          <div id="problem-card-inner" class="problem-card-inner" style="position: relative; z-index: 1;">
+
+            <!-- Icon -->
+            <div id="prob-icon" class="mb-5" aria-hidden="true">
+              <!-- populated by JS -->
+            </div>
+
+            <!-- Problem counter -->
+            <div class="flex items-center gap-1.5 mb-3">
+              <span class="font-body font-semibold uppercase tracking-[0.14em]" style="color: rgba(22,20,20,0.3); font-size: 0.68rem;">Problem</span>
+              <span id="prob-num" class="font-display font-bold" style="color: rgba(22,20,20,0.3); font-size: 0.68rem;">01</span>
+              <span class="font-body uppercase tracking-[0.14em]" style="color: rgba(22,20,20,0.18); font-size: 0.68rem;">/ 05</span>
+            </div>
+
+            <!-- Problem title -->
+            <h3
+              id="prob-title"
+              class="font-display font-bold mb-5 leading-tight"
+              style="color: #C50A07; font-size: clamp(1.25rem, 3vw, 1.6rem);"
+            >Creative Fatigue: Your Best Ad Is Already Dying</h3>
+
+            <!-- Confrontation body -->
+            <p
+              id="prob-confrontation"
+              class="font-body leading-relaxed mb-8"
+              style="color: rgba(22,20,20,0.65); font-size: clamp(0.9rem, 1.8vw, 1rem); line-height: 1.8;"
+            >You found a creative that worked — a talking-head testimonial, a before/after, a hook that cut through. You scaled it. Then quietly, your CPAs started climbing. You tested the audience, the landing page, the offer. Everything looked fine. The creative was the problem — and you didn't have anything new ready.</p>
+
+            <!-- Reveal button — solid red -->
+            <button
+              id="prob-solution-btn"
+              class="inline-flex items-center gap-2 font-body font-semibold rounded-xl cursor-pointer"
+              style="color: #FFF0EB; background: #C50A07; border: none;
+                     font-size: 0.875rem; padding: 10px 20px;
+                     transition: background-color 200ms ease, box-shadow 200ms ease;"
+              onmouseover="this.style.backgroundColor='#b30906';this.style.boxShadow='0 4px 18px rgba(197,10,7,0.38)';"
+              onmouseout="this.style.backgroundColor='#C50A07';this.style.boxShadow='none';"
+            >
+              See How We Solve This
+              <svg
+                id="prob-solution-chevron"
+                width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+                style="transition: transform 320ms cubic-bezier(0.16,1,0.3,1);"
+                aria-hidden="true"
+              ><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+
+            <!-- Solution reveal -->
+            <div id="prob-solution" class="solution-reveal" role="region" aria-label="Solution">
+              <div class="mt-7 pt-7" style="border-top: 1px solid rgba(22,20,20,0.08);">
+
+                <div class="flex items-center gap-2 mb-4">
+                  <span
+                    class="flex items-center justify-center rounded-full shrink-0"
+                    style="width: 20px; height: 20px; background: rgba(197,10,7,0.1);"
+                    aria-hidden="true"
+                  >
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#C50A07" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>
+                  </span>
+                  <span class="font-body font-semibold uppercase tracking-[0.13em]" style="color: rgba(22,20,20,0.4); font-size: 0.67rem;">Our Solution</span>
+                </div>
+
+                <p
+                  id="prob-solution-text"
+                  class="font-body leading-relaxed"
+                  style="color: rgba(22,20,20,0.65); font-size: clamp(0.88rem, 1.8vw, 0.975rem); line-height: 1.8;"
+                >Your competitors aren't outspending you. They're outproducing you. We generate 20–40 fresh UGC video variants per week — different hooks, different personas, different angles — so your ad account never runs dry. No briefs. No creator chasing. No 3-week wait.</p>
+
+              </div>
+            </div>
+
+          </div><!-- /problem-card-inner -->
+        </div><!-- /problem-card -->
+
+        <!-- Right arrow (desktop) -->
+        <button
+          id="prob-next"
+          class="prob-arrow hidden md:flex"
+          style="margin-top: 5.75rem;"
+          aria-label="Next problem"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </button>
+
+      </div><!-- /card row -->
+
+      <!-- Mobile arrows -->
+      <div class="reveal flex md:hidden justify-center gap-4 mt-6">
+        <button id="prob-prev-m" class="prob-arrow" aria-label="Previous problem">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+        </button>
+        <button id="prob-next-m" class="prob-arrow" aria-label="Next problem">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SERVICES SECTION
+  ════════════════════════════════════════════════════════════════════ -->
+  <section id="what-we-do" class="grain" style="background-color: #161414; position: relative; overflow: hidden;">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32">
+
+      <!-- Section heading -->
+      <div class="reveal mb-20 md:mb-24">
+        <h2
+          class="font-display font-bold text-cream leading-tight"
+          style="font-size: clamp(2.2rem, 5vw, 3.75rem);"
+        >
+          What We Do
+        </h2>
+        <div class="mt-5 h-px max-w-xs" style="background: rgba(255,240,235,0.1);"></div>
+      </div>
+
+      <!-- Service blocks — alternating layout -->
+      <div class="flex flex-col divide-y" style="border-color: rgba(255,240,235,0.08);">
+
+        <!-- Service 1: Ads Management -->
+        <div class="service-row reveal group grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-0 py-12 md:py-16 items-start">
+          <!-- Number -->
+          <div class="md:col-span-1">
+            <span
+              class="font-display font-bold leading-none select-none"
+              style="font-size: 0.85rem; color: #C50A07; letter-spacing: 0.06em;"
+            >01</span>
+          </div>
+          <!-- Title -->
+          <div class="md:col-span-4 md:pr-8">
+            <h3
+              class="font-display font-bold text-cream leading-snug"
+              style="font-size: clamp(1.4rem, 3vw, 2rem);"
+            >
+              Ads Management
+            </h3>
+          </div>
+          <!-- Body + icon row -->
+          <div class="md:col-span-7 flex flex-col sm:flex-row gap-6 md:gap-10 items-start">
+            <p class="font-body leading-relaxed flex-1" style="color: rgba(255,240,235,0.55); font-size: 1rem;">
+              We run and optimize your Meta ads with a focus on profitable scaling. Full campaign management from creative to reporting.
+            </p>
+            <!-- Arrow accent -->
+            <div
+              class="shrink-0 flex items-center justify-center size-10 rounded-full border transition-colors duration-200"
+              style="border-color: rgba(255,240,235,0.12); color: rgba(255,240,235,0.3);"
+              aria-hidden="true"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M7 17L17 7M7 7h10v10"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Service 2: Ads Scaling -->
+        <div class="service-row reveal reveal-stagger-1 group grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-0 py-12 md:py-16 items-start">
+          <!-- Number -->
+          <div class="md:col-span-1">
+            <span
+              class="font-display font-bold leading-none select-none"
+              style="font-size: 0.85rem; color: #C50A07; letter-spacing: 0.06em;"
+            >02</span>
+          </div>
+          <!-- Title -->
+          <div class="md:col-span-4 md:pr-8">
+            <h3
+              class="font-display font-bold text-cream leading-snug"
+              style="font-size: clamp(1.4rem, 3vw, 2rem);"
+            >
+              Ads Scaling
+            </h3>
+          </div>
+          <!-- Body + icon row -->
+          <div class="md:col-span-7 flex flex-col sm:flex-row gap-6 md:gap-10 items-start">
+            <p class="font-body leading-relaxed flex-1" style="color: rgba(255,240,235,0.55); font-size: 1rem;">
+              Strategic scaling based on performance data. We identify winning ad sets and scale them systematically — not randomly.
+            </p>
+            <div
+              class="shrink-0 flex items-center justify-center size-10 rounded-full border transition-colors duration-200"
+              style="border-color: rgba(255,240,235,0.12); color: rgba(255,240,235,0.3);"
+              aria-hidden="true"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M7 17L17 7M7 7h10v10"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Service 3: AI-UGC Creation -->
+        <div class="service-row reveal reveal-stagger-2 group grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-0 py-12 md:py-16 items-start">
+          <!-- Number -->
+          <div class="md:col-span-1">
+            <span
+              class="font-display font-bold leading-none select-none"
+              style="font-size: 0.85rem; color: #C50A07; letter-spacing: 0.06em;"
+            >03</span>
+          </div>
+          <!-- Title -->
+          <div class="md:col-span-4 md:pr-8">
+            <h3
+              class="font-display font-bold text-cream leading-snug"
+              style="font-size: clamp(1.4rem, 3vw, 2rem);"
+            >
+              AI-UGC Creation
+            </h3>
+            <!-- "New" badge -->
+            <span
+              class="inline-block mt-2 px-2.5 py-0.5 rounded-md font-body font-semibold text-red"
+              style="font-size: 0.7rem; letter-spacing: 0.1em; background-color: rgba(197,10,7,0.12); text-transform: uppercase;"
+            >New</span>
+          </div>
+          <!-- Body + icon row -->
+          <div class="md:col-span-7 flex flex-col sm:flex-row gap-6 md:gap-10 items-start">
+            <p class="font-body leading-relaxed flex-1" style="color: rgba(255,240,235,0.55); font-size: 1rem;">
+              We design the positioning, propose the structure, and mass-produce AI-powered UGC content. Then we test and find the best-performing combinations of copy and visuals.
+            </p>
+            <div
+              class="shrink-0 flex items-center justify-center size-10 rounded-full border transition-colors duration-200"
+              style="border-color: rgba(255,240,235,0.12); color: rgba(255,240,235,0.3);"
+              aria-hidden="true"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M7 17L17 7M7 7h10v10"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       HOW IT WORKS SECTION
+  ════════════════════════════════════════════════════════════════════ -->
+  <section id="how-it-works" style="background-color: #FFF0EB;">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32">
+
+      <!-- Section heading -->
+      <div class="reveal max-w-2xl mb-16 md:mb-24">
+        <p class="font-body font-medium mb-4" style="color: #C50A07; font-size: 0.8rem; letter-spacing: 0.14em; text-transform: uppercase;">The Process</p>
+        <h2
+          class="font-display font-bold leading-tight"
+          style="color: #161414; font-size: clamp(2rem, 4.5vw, 3.25rem);"
+        >
+          From First Call to Scaling —<br class="hidden sm:block"> Here's the Process
+        </h2>
+      </div>
+
+      <!-- ── Desktop: horizontal timeline ── -->
+      <div class="reveal hidden md:block relative">
+
+        <!-- Connector line -->
+        <div
+          class="absolute left-0 right-0"
+          style="top: 28px; height: 1px; background: linear-gradient(to right, #C50A07 0%, rgba(22,20,20,0.15) 100%);"
+          aria-hidden="true"
+        ></div>
+
+        <div class="grid grid-cols-4 gap-6 lg:gap-8">
+
+          <!-- Step 1 -->
+          <div class="reveal flex flex-col">
+            <div class="flex items-center mb-8">
+              <div
+                class="relative z-10 flex items-center justify-center size-14 rounded-full font-display font-bold text-cream shrink-0"
+                style="background-color: #C50A07; font-size: 1.05rem; box-shadow: 0 0 0 6px #FFF0EB, 0 0 0 7px rgba(197,10,7,0.2);"
+              >1</div>
+            </div>
+            <h3 class="font-display font-bold mb-3 leading-snug" style="color: #161414; font-size: 1.15rem;">Book a Discovery Call</h3>
+            <p class="font-body leading-relaxed" style="color: rgba(22,20,20,0.58); font-size: 0.94rem;">30-minute call to understand your brand, goals, and current setup.</p>
+          </div>
+
+          <!-- Step 2 -->
+          <div class="reveal reveal-step-2 flex flex-col">
+            <div class="flex items-center mb-8">
+              <div
+                class="relative z-10 flex items-center justify-center size-14 rounded-full font-display font-bold shrink-0"
+                style="background-color: #FFF0EB; color: #161414; font-size: 1.05rem; border: 1.5px solid rgba(22,20,20,0.2); box-shadow: 0 0 0 6px #FFF0EB;"
+              >2</div>
+            </div>
+            <h3 class="font-display font-bold mb-3 leading-snug" style="color: #161414; font-size: 1.15rem;">We Audit Everything</h3>
+            <p class="font-body leading-relaxed" style="color: rgba(22,20,20,0.58); font-size: 0.94rem;">Deep dive into your current ads, competitor analysis, and creative stack.</p>
+          </div>
+
+          <!-- Step 3 -->
+          <div class="reveal reveal-step-3 flex flex-col">
+            <div class="flex items-center mb-8">
+              <div
+                class="relative z-10 flex items-center justify-center size-14 rounded-full font-display font-bold shrink-0"
+                style="background-color: #FFF0EB; color: #161414; font-size: 1.05rem; border: 1.5px solid rgba(22,20,20,0.2); box-shadow: 0 0 0 6px #FFF0EB;"
+              >3</div>
+            </div>
+            <h3 class="font-display font-bold mb-3 leading-snug" style="color: #161414; font-size: 1.15rem;">Custom Scaling Strategy</h3>
+            <p class="font-body leading-relaxed" style="color: rgba(22,20,20,0.58); font-size: 0.94rem;">We send you a tailored proposal with a clear scaling roadmap.</p>
+          </div>
+
+          <!-- Step 4 -->
+          <div class="reveal reveal-step-4 flex flex-col">
+            <div class="flex items-center mb-8">
+              <div
+                class="relative z-10 flex items-center justify-center size-14 rounded-full font-display font-bold shrink-0"
+                style="background-color: #FFF0EB; color: #161414; font-size: 1.05rem; border: 1.5px solid rgba(22,20,20,0.2); box-shadow: 0 0 0 6px #FFF0EB;"
+              >4</div>
+            </div>
+            <h3 class="font-display font-bold mb-3 leading-snug" style="color: #161414; font-size: 1.15rem;">We Execute, You Watch</h3>
+            <p class="font-body leading-relaxed" style="color: rgba(22,20,20,0.58); font-size: 0.94rem;">We handle ads + AI content production. You focus on your business.</p>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ── Mobile: vertical timeline ── -->
+      <div class="reveal md:hidden flex flex-col">
+
+        <!-- Step 1 -->
+        <div class="reveal flex gap-6">
+          <div class="flex flex-col items-center">
+            <div
+              class="flex items-center justify-center size-12 rounded-full font-display font-bold text-cream shrink-0"
+              style="background-color: #C50A07; font-size: 1rem; box-shadow: 0 0 0 5px #FFF0EB, 0 0 0 6px rgba(197,10,7,0.18);"
+            >1</div>
+            <div class="flex-1 w-px my-3" style="background: rgba(22,20,20,0.14);"></div>
+          </div>
+          <div class="pb-10 pt-1">
+            <h3 class="font-display font-bold mb-2 leading-snug" style="color: #161414; font-size: 1.1rem;">Book a Discovery Call</h3>
+            <p class="font-body leading-relaxed" style="color: rgba(22,20,20,0.58); font-size: 0.94rem;">30-minute call to understand your brand, goals, and current setup.</p>
+          </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="reveal reveal-step-2 flex gap-6">
+          <div class="flex flex-col items-center">
+            <div
+              class="flex items-center justify-center size-12 rounded-full font-display font-bold shrink-0"
+              style="background-color: #FFF0EB; color: #161414; font-size: 1rem; border: 1.5px solid rgba(22,20,20,0.22); box-shadow: 0 0 0 5px #FFF0EB;"
+            >2</div>
+            <div class="flex-1 w-px my-3" style="background: rgba(22,20,20,0.14);"></div>
+          </div>
+          <div class="pb-10 pt-1">
+            <h3 class="font-display font-bold mb-2 leading-snug" style="color: #161414; font-size: 1.1rem;">We Audit Everything</h3>
+            <p class="font-body leading-relaxed" style="color: rgba(22,20,20,0.58); font-size: 0.94rem;">Deep dive into your current ads, competitor analysis, and creative stack.</p>
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="reveal reveal-step-3 flex gap-6">
+          <div class="flex flex-col items-center">
+            <div
+              class="flex items-center justify-center size-12 rounded-full font-display font-bold shrink-0"
+              style="background-color: #FFF0EB; color: #161414; font-size: 1rem; border: 1.5px solid rgba(22,20,20,0.22); box-shadow: 0 0 0 5px #FFF0EB;"
+            >3</div>
+            <div class="flex-1 w-px my-3" style="background: rgba(22,20,20,0.14);"></div>
+          </div>
+          <div class="pb-10 pt-1">
+            <h3 class="font-display font-bold mb-2 leading-snug" style="color: #161414; font-size: 1.1rem;">Custom Scaling Strategy</h3>
+            <p class="font-body leading-relaxed" style="color: rgba(22,20,20,0.58); font-size: 0.94rem;">We send you a tailored proposal with a clear scaling roadmap.</p>
+          </div>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="reveal reveal-step-4 flex gap-6">
+          <div class="flex flex-col items-center">
+            <div
+              class="flex items-center justify-center size-12 rounded-full font-display font-bold shrink-0"
+              style="background-color: #FFF0EB; color: #161414; font-size: 1rem; border: 1.5px solid rgba(22,20,20,0.22); box-shadow: 0 0 0 5px #FFF0EB;"
+            >4</div>
+          </div>
+          <div class="pt-1">
+            <h3 class="font-display font-bold mb-2 leading-snug" style="color: #161414; font-size: 1.1rem;">We Execute, You Watch</h3>
+            <p class="font-body leading-relaxed" style="color: rgba(22,20,20,0.58); font-size: 0.94rem;">We handle ads + AI content production. You focus on your business.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- CTA nudge -->
+      <div class="mt-16 md:mt-20 pt-12 md:pt-16 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6"
+           style="border-top: 1px solid rgba(22,20,20,0.1);">
+        <p class="font-body" style="color: rgba(22,20,20,0.55); font-size: 0.95rem; max-width: 36ch;">
+          The whole process takes less than a week before we're live.
+        </p>
+        <a
+          href="#contact"
+          class="btn-red inline-flex items-center gap-2.5 px-7 py-3.5 rounded-xl text-cream font-display font-semibold cursor-pointer shrink-0
+                 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red/70 focus-visible:ring-offset-2 focus-visible:ring-offset-cream"
+          style="font-size: 0.95rem; min-height: 50px;"
+        >
+          Start the Process
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </a>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       WHY BRANDS CHOOSE US
+  ════════════════════════════════════════════════════════════════════ -->
+  <section id="results" class="grain" style="background-color: #161414; position: relative; overflow: hidden;">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32">
+
+      <!-- Section heading -->
+      <div class="reveal flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-20 md:mb-28">
+        <h2
+          class="font-display font-bold text-cream leading-tight"
+          style="font-size: clamp(2.2rem, 5vw, 3.75rem); max-width: 14ch;"
+        >
+          Why Brands Choose Us
+        </h2>
+        <!-- Decorative rule -->
+        <div class="hidden md:block flex-1 mx-12 mb-3" style="height: 1px; background: rgba(255,240,235,0.08);"></div>
+        <p class="font-body md:text-right md:max-w-[26ch]" style="color: rgba(255,240,235,0.4); font-size: 0.9rem; line-height: 1.65;">
+          Not another agency pitch.<br>A model where we deliver value before you pay.
+        </p>
+      </div>
+
+      <!-- Differentiators -->
+      <div class="flex flex-col divide-y" style="border-color: rgba(255,240,235,0.07);">
+
+        <!-- 01 — Zero Risk -->
+        <div class="differ-row reveal group grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-0 py-12 md:py-16 items-center">
+
+          <!-- Giant number -->
+          <div class="md:col-span-2 select-none" aria-hidden="true">
+            <span
+              class="font-display font-bold leading-none"
+              style="font-size: clamp(3.5rem, 8vw, 6rem); color: rgba(197,10,7,0.18); letter-spacing: -0.03em; transition: color 300ms ease;"
+            >01</span>
+          </div>
+
+          <!-- Title -->
+          <div class="md:col-span-4 md:pr-10">
+            <h3
+              class="font-display font-bold text-cream leading-tight"
+              style="font-size: clamp(1.6rem, 3.2vw, 2.4rem);"
+            >
+              Zero Risk,<br>Zero Cost to Start
+            </h3>
+          </div>
+
+          <!-- Body -->
+          <div class="md:col-span-5">
+            <p class="font-body leading-relaxed" style="color: rgba(255,240,235,0.5); font-size: 1rem;">
+              Your first 10 days are completely free — AI content pack, performance audit, and competitor analysis delivered before you spend a dollar. We prove our value before asking for commitment.
+            </p>
+          </div>
+
+          <!-- Accent dot -->
+          <div class="hidden md:flex md:col-span-1 justify-end">
+            <div class="size-2 rounded-full" style="background-color: #C50A07; opacity: 0.5;"></div>
+          </div>
+
+        </div>
+
+        <!-- 02 — One Client at a Time -->
+        <div class="differ-row reveal reveal-stagger-1 group grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-0 py-12 md:py-16 items-center">
+
+          <div class="md:col-span-2 select-none" aria-hidden="true">
+            <span
+              class="font-display font-bold leading-none"
+              style="font-size: clamp(3.5rem, 8vw, 6rem); color: rgba(197,10,7,0.18); letter-spacing: -0.03em;"
+            >02</span>
+          </div>
+
+          <div class="md:col-span-4 md:pr-10">
+            <h3
+              class="font-display font-bold text-cream leading-tight"
+              style="font-size: clamp(1.6rem, 3.2vw, 2.4rem);"
+            >
+              One Client<br>at a Time
+            </h3>
+          </div>
+
+          <div class="md:col-span-5">
+            <p class="font-body leading-relaxed" style="color: rgba(255,240,235,0.5); font-size: 1rem;">
+              We take 1 new client every 2 months. Your brand gets our full attention — not a junior account manager juggling 50 clients.
+            </p>
+          </div>
+
+          <div class="hidden md:flex md:col-span-1 justify-end">
+            <div class="size-2 rounded-full" style="background-color: #C50A07; opacity: 0.5;"></div>
+          </div>
+
+        </div>
+
+        <!-- 03 — Ads + Content Under One Roof -->
+        <div class="differ-row reveal reveal-stagger-2 group grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-0 py-12 md:py-16 items-center">
+
+          <div class="md:col-span-2 select-none" aria-hidden="true">
+            <span
+              class="font-display font-bold leading-none"
+              style="font-size: clamp(3.5rem, 8vw, 6rem); color: rgba(197,10,7,0.18); letter-spacing: -0.03em;"
+            >03</span>
+          </div>
+
+          <div class="md:col-span-4 md:pr-10">
+            <h3
+              class="font-display font-bold text-cream leading-tight"
+              style="font-size: clamp(1.6rem, 3.2vw, 2.4rem);"
+            >
+              Ads + AI Content<br>Under One Roof
+            </h3>
+          </div>
+
+          <div class="md:col-span-5">
+            <p class="font-body leading-relaxed" style="color: rgba(255,240,235,0.5); font-size: 1rem;">
+              No separate agencies for ads and creative. We produce AI UGC, manage your campaigns, and track exactly which content drives results — all in one place.
+            </p>
+          </div>
+
+          <div class="hidden md:flex md:col-span-1 justify-end">
+            <div class="size-2 rounded-full" style="background-color: #C50A07; opacity: 0.5;"></div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Bottom marquee-style pull quote -->
+      <div
+        class="mt-20 md:mt-28 overflow-hidden rounded-2xl px-8 md:px-14 py-10 md:py-12 flex flex-col md:flex-row items-start md:items-center justify-between gap-8"
+        style="background: rgba(255,240,235,0.04); border: 1px solid rgba(255,240,235,0.07);"
+      >
+        <blockquote class="font-display font-bold text-cream leading-snug" style="font-size: clamp(1.2rem, 2.8vw, 1.75rem); max-width: 38ch;">
+          "We don't work with everyone.<br>We work with the right brands — and we go all in."
+        </blockquote>
+        <a
+          href="#contact"
+          class="btn-red inline-flex items-center gap-2.5 px-7 py-4 rounded-xl text-cream font-display font-semibold cursor-pointer shrink-0
+                 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red/70 focus-visible:ring-offset-2 focus-visible:ring-offset-dark"
+          style="font-size: 0.95rem; min-height: 52px;"
+        >
+          See If You Qualify
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </a>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       CONTENT SHOWCASE SECTION
+  ════════════════════════════════════════════════════════════════════ -->
+  <section id="content-showcase" style="background-color: #FFF0EB; overflow: hidden;">
+
+    <!-- Heading — contained -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 md:pt-32 pb-12 md:pb-16">
+      <div class="reveal text-center">
+        <p class="font-body font-medium mb-4" style="color: #C50A07; font-size: 0.8rem; letter-spacing: 0.14em; text-transform: uppercase;">AI UGC Portfolio</p>
+        <h2
+          class="font-display font-bold leading-tight mb-5"
+          style="color: #161414; font-size: clamp(2.2rem, 5vw, 3.75rem);"
+        >
+          Content That Converts
+        </h2>
+        <p
+          class="font-body mx-auto"
+          style="color: rgba(22,20,20,0.5); font-size: clamp(0.95rem, 2vw, 1.075rem); max-width: 46ch; line-height: 1.7;"
+        >
+          Examples of AI-generated UGC ads we produce for e-commerce brands.
+        </p>
+      </div>
+    </div>
+
+    <!-- ── Infinite marquee carousel — full bleed ── -->
+    <div
+      id="ugc-carousel"
+      class="relative pb-24 md:pb-32"
+      aria-label="AI UGC examples carousel"
+    >
+      <!-- Left fade mask -->
+      <div class="pointer-events-none absolute inset-y-0 left-0 z-10" style="width: 80px; background: linear-gradient(to right, #FFF0EB, transparent);" aria-hidden="true"></div>
+      <!-- Right fade mask -->
+      <div class="pointer-events-none absolute inset-y-0 right-0 z-10" style="width: 80px; background: linear-gradient(to left, #FFF0EB, transparent);" aria-hidden="true"></div>
+
+      <!--
+        Track structure: two flex groups, each with gap + padding-right equal to the gap value.
+        Both groups are pixel-identical in width → translateX(-50%) = exactly one group width → no jump.
+      -->
+      <div class="carousel-track">
+
+        <!-- Card 1 -->
+        <div class="ugc-card group relative shrink-0 cursor-pointer" style="width: clamp(140px, 22vw, 200px); aspect-ratio: 9/16;">
+          <div class="absolute inset-0 rounded-2xl overflow-hidden transition-transform duration-300 ease-out group-hover:-translate-y-1" style="background: #161414; box-shadow: 0 4px 20px rgba(22,20,20,0.14);">
+            <div class="absolute inset-0 opacity-[0.04]" style="background-image: radial-gradient(circle, #FFF0EB 1px, transparent 1px); background-size: 20px 20px;"></div>
+            <div class="absolute inset-0" style="background: linear-gradient(160deg, rgba(255,240,235,0.05) 0%, transparent 60%);"></div>
+            <div class="absolute inset-0 flex flex-col items-center justify-center gap-3">
+              <div class="flex items-center justify-center rounded-full border transition-all duration-200 group-hover:scale-110" style="width: 44px; height: 44px; border-color: rgba(255,240,235,0.25); background: rgba(255,240,235,0.07);">
+                <svg viewBox="0 0 24 24" fill="currentColor" class="text-cream/50 group-hover:text-cream/80 transition-colors duration-200" style="width: 40%; height: 40%; margin-left: 10%;" aria-hidden="true"><path d="M8 5.14v14l11-7-11-7z"/></svg>
+              </div>
+              <span class="font-body font-medium text-center px-2" style="color: rgba(255,240,235,0.3); font-size: 0.62rem; letter-spacing: 0.06em; text-transform: uppercase;">Ad Example 1</span>
+            </div>
+            <div class="absolute bottom-2.5 left-2.5 right-2.5">
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded font-body font-medium" style="background: rgba(255,240,235,0.07); color: rgba(255,240,235,0.3); font-size: 0.58rem; letter-spacing: 0.07em; text-transform: uppercase;">
+                <span class="size-1 rounded-full shrink-0" style="background: #C50A07; opacity: 0.7;"></span>AI UGC
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="ugc-card group relative shrink-0 cursor-pointer" style="width: clamp(140px, 22vw, 200px); aspect-ratio: 9/16;">
+          <div class="absolute inset-0 rounded-2xl overflow-hidden transition-transform duration-300 ease-out group-hover:-translate-y-1" style="background: #1e1b1b; box-shadow: 0 4px 20px rgba(22,20,20,0.14);">
+            <div class="absolute inset-0 opacity-[0.04]" style="background-image: radial-gradient(circle, #FFF0EB 1px, transparent 1px); background-size: 20px 20px;"></div>
+            <div class="absolute inset-0" style="background: linear-gradient(200deg, rgba(197,10,7,0.07) 0%, transparent 55%);"></div>
+            <div class="absolute inset-0 flex flex-col items-center justify-center gap-3">
+              <div class="flex items-center justify-center rounded-full border transition-all duration-200 group-hover:scale-110" style="width: 44px; height: 44px; border-color: rgba(255,240,235,0.25); background: rgba(255,240,235,0.07);">
+                <svg viewBox="0 0 24 24" fill="currentColor" class="text-cream/50 group-hover:text-cream/80 transition-colors duration-200" style="width: 40%; height: 40%; margin-left: 10%;" aria-hidden="true"><path d="M8 5.14v14l11-7-11-7z"/></svg>
+              </div>
+              <span class="font-body font-medium text-center px-2" style="color: rgba(255,240,235,0.3); font-size: 0.62rem; letter-spacing: 0.06em; text-transform: uppercase;">Ad Example 2</span>
+            </div>
+            <div class="absolute bottom-2.5 left-2.5 right-2.5">
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded font-body font-medium" style="background: rgba(255,240,235,0.07); color: rgba(255,240,235,0.3); font-size: 0.58rem; letter-spacing: 0.07em; text-transform: uppercase;">
+                <span class="size-1 rounded-full shrink-0" style="background: #C50A07; opacity: 0.7;"></span>AI UGC
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="ugc-card group relative shrink-0 cursor-pointer" style="width: clamp(140px, 22vw, 200px); aspect-ratio: 9/16;">
+          <div class="absolute inset-0 rounded-2xl overflow-hidden transition-transform duration-300 ease-out group-hover:-translate-y-1" style="background: #1a1717; box-shadow: 0 4px 20px rgba(22,20,20,0.14);">
+            <div class="absolute inset-0 opacity-[0.04]" style="background-image: radial-gradient(circle, #FFF0EB 1px, transparent 1px); background-size: 20px 20px;"></div>
+            <div class="absolute inset-0" style="background: linear-gradient(140deg, rgba(255,240,235,0.04) 0%, transparent 55%);"></div>
+            <div class="absolute inset-0 flex flex-col items-center justify-center gap-3">
+              <div class="flex items-center justify-center rounded-full border transition-all duration-200 group-hover:scale-110" style="width: 44px; height: 44px; border-color: rgba(255,240,235,0.25); background: rgba(255,240,235,0.07);">
+                <svg viewBox="0 0 24 24" fill="currentColor" class="text-cream/50 group-hover:text-cream/80 transition-colors duration-200" style="width: 40%; height: 40%; margin-left: 10%;" aria-hidden="true"><path d="M8 5.14v14l11-7-11-7z"/></svg>
+              </div>
+              <span class="font-body font-medium text-center px-2" style="color: rgba(255,240,235,0.3); font-size: 0.62rem; letter-spacing: 0.06em; text-transform: uppercase;">Ad Example 3</span>
+            </div>
+            <div class="absolute bottom-2.5 left-2.5 right-2.5">
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded font-body font-medium" style="background: rgba(255,240,235,0.07); color: rgba(255,240,235,0.3); font-size: 0.58rem; letter-spacing: 0.07em; text-transform: uppercase;">
+                <span class="size-1 rounded-full shrink-0" style="background: #C50A07; opacity: 0.7;"></span>AI UGC
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 4 -->
+        <div class="ugc-card group relative shrink-0 cursor-pointer" style="width: clamp(140px, 22vw, 200px); aspect-ratio: 9/16;">
+          <div class="absolute inset-0 rounded-2xl overflow-hidden transition-transform duration-300 ease-out group-hover:-translate-y-1" style="background: #161414; box-shadow: 0 4px 20px rgba(22,20,20,0.14);">
+            <div class="absolute inset-0 opacity-[0.04]" style="background-image: radial-gradient(circle, #FFF0EB 1px, transparent 1px); background-size: 20px 20px;"></div>
+            <div class="absolute inset-0" style="background: linear-gradient(310deg, rgba(197,10,7,0.06) 0%, transparent 60%);"></div>
+            <div class="absolute inset-0 flex flex-col items-center justify-center gap-3">
+              <div class="flex items-center justify-center rounded-full border transition-all duration-200 group-hover:scale-110" style="width: 44px; height: 44px; border-color: rgba(255,240,235,0.25); background: rgba(255,240,235,0.07);">
+                <svg viewBox="0 0 24 24" fill="currentColor" class="text-cream/50 group-hover:text-cream/80 transition-colors duration-200" style="width: 40%; height: 40%; margin-left: 10%;" aria-hidden="true"><path d="M8 5.14v14l11-7-11-7z"/></svg>
+              </div>
+              <span class="font-body font-medium text-center px-2" style="color: rgba(255,240,235,0.3); font-size: 0.62rem; letter-spacing: 0.06em; text-transform: uppercase;">Ad Example 4</span>
+            </div>
+            <div class="absolute bottom-2.5 left-2.5 right-2.5">
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded font-body font-medium" style="background: rgba(255,240,235,0.07); color: rgba(255,240,235,0.3); font-size: 0.58rem; letter-spacing: 0.07em; text-transform: uppercase;">
+                <span class="size-1 rounded-full shrink-0" style="background: #C50A07; opacity: 0.7;"></span>AI UGC
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 5 -->
+        <div class="ugc-card group relative shrink-0 cursor-pointer" style="width: clamp(140px, 22vw, 200px); aspect-ratio: 9/16;">
+          <div class="absolute inset-0 rounded-2xl overflow-hidden transition-transform duration-300 ease-out group-hover:-translate-y-1" style="background: #1c1919; box-shadow: 0 4px 20px rgba(22,20,20,0.14);">
+            <div class="absolute inset-0 opacity-[0.04]" style="background-image: radial-gradient(circle, #FFF0EB 1px, transparent 1px); background-size: 20px 20px;"></div>
+            <div class="absolute inset-0" style="background: linear-gradient(230deg, rgba(255,240,235,0.04) 0%, transparent 55%);"></div>
+            <div class="absolute inset-0 flex flex-col items-center justify-center gap-3">
+              <div class="flex items-center justify-center rounded-full border transition-all duration-200 group-hover:scale-110" style="width: 44px; height: 44px; border-color: rgba(255,240,235,0.25); background: rgba(255,240,235,0.07);">
+                <svg viewBox="0 0 24 24" fill="currentColor" class="text-cream/50 group-hover:text-cream/80 transition-colors duration-200" style="width: 40%; height: 40%; margin-left: 10%;" aria-hidden="true"><path d="M8 5.14v14l11-7-11-7z"/></svg>
+              </div>
+              <span class="font-body font-medium text-center px-2" style="color: rgba(255,240,235,0.3); font-size: 0.62rem; letter-spacing: 0.06em; text-transform: uppercase;">Ad Example 5</span>
+            </div>
+            <div class="absolute bottom-2.5 left-2.5 right-2.5">
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded font-body font-medium" style="background: rgba(255,240,235,0.07); color: rgba(255,240,235,0.3); font-size: 0.58rem; letter-spacing: 0.07em; text-transform: uppercase;">
+                <span class="size-1 rounded-full shrink-0" style="background: #C50A07; opacity: 0.7;"></span>AI UGC
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 6 -->
+        <div class="ugc-card group relative shrink-0 cursor-pointer" style="width: clamp(140px, 22vw, 200px); aspect-ratio: 9/16;">
+          <div class="absolute inset-0 rounded-2xl overflow-hidden transition-transform duration-300 ease-out group-hover:-translate-y-1" style="background: #161414; box-shadow: 0 4px 20px rgba(22,20,20,0.14);">
+            <div class="absolute inset-0 opacity-[0.04]" style="background-image: radial-gradient(circle, #FFF0EB 1px, transparent 1px); background-size: 20px 20px;"></div>
+            <div class="absolute inset-0" style="background: linear-gradient(100deg, rgba(197,10,7,0.05) 0%, transparent 60%);"></div>
+            <div class="absolute inset-0 flex flex-col items-center justify-center gap-3">
+              <div class="flex items-center justify-center rounded-full border transition-all duration-200 group-hover:scale-110" style="width: 44px; height: 44px; border-color: rgba(255,240,235,0.25); background: rgba(255,240,235,0.07);">
+                <svg viewBox="0 0 24 24" fill="currentColor" class="text-cream/50 group-hover:text-cream/80 transition-colors duration-200" style="width: 40%; height: 40%; margin-left: 10%;" aria-hidden="true"><path d="M8 5.14v14l11-7-11-7z"/></svg>
+              </div>
+              <span class="font-body font-medium text-center px-2" style="color: rgba(255,240,235,0.3); font-size: 0.62rem; letter-spacing: 0.06em; text-transform: uppercase;">Ad Example 6</span>
+            </div>
+            <div class="absolute bottom-2.5 left-2.5 right-2.5">
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded font-body font-medium" style="background: rgba(255,240,235,0.07); color: rgba(255,240,235,0.3); font-size: 0.58rem; letter-spacing: 0.07em; text-transform: uppercase;">
+                <span class="size-1 rounded-full shrink-0" style="background: #C50A07; opacity: 0.7;"></span>AI UGC
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Duplicate set (aria-hidden) -->
+
+        <!-- Dupe 1 -->
+        <div class="relative shrink-0" aria-hidden="true" style="width: clamp(140px, 22vw, 200px); aspect-ratio: 9/16;">
+          <div class="absolute inset-0 rounded-2xl overflow-hidden" style="background: #161414; box-shadow: 0 4px 20px rgba(22,20,20,0.14);">
+            <div class="absolute inset-0 opacity-[0.04]" style="background-image: radial-gradient(circle, #FFF0EB 1px, transparent 1px); background-size: 20px 20px;"></div>
+            <div class="absolute inset-0" style="background: linear-gradient(160deg, rgba(255,240,235,0.05) 0%, transparent 60%);"></div>
+            <div class="absolute inset-0 flex flex-col items-center justify-center gap-3">
+              <div class="flex items-center justify-center rounded-full border" style="width: 44px; height: 44px; border-color: rgba(255,240,235,0.25); background: rgba(255,240,235,0.07);">
+                <svg viewBox="0 0 24 24" fill="currentColor" style="width: 40%; height: 40%; margin-left: 10%; color: rgba(255,240,235,0.5);"><path d="M8 5.14v14l11-7-11-7z"/></svg>
+              </div>
+              <span class="font-body font-medium text-center px-2" style="color: rgba(255,240,235,0.3); font-size: 0.62rem; letter-spacing: 0.06em; text-transform: uppercase;">Ad Example 1</span>
+            </div>
+            <div class="absolute bottom-2.5 left-2.5 right-2.5">
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded font-body font-medium" style="background: rgba(255,240,235,0.07); color: rgba(255,240,235,0.3); font-size: 0.58rem; letter-spacing: 0.07em; text-transform: uppercase;"><span class="size-1 rounded-full shrink-0" style="background:#C50A07;opacity:0.7;"></span>AI UGC</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dupe 2 -->
+        <div class="relative shrink-0" aria-hidden="true" style="width: clamp(140px, 22vw, 200px); aspect-ratio: 9/16;">
+          <div class="absolute inset-0 rounded-2xl overflow-hidden" style="background: #1e1b1b; box-shadow: 0 4px 20px rgba(22,20,20,0.14);">
+            <div class="absolute inset-0 opacity-[0.04]" style="background-image: radial-gradient(circle, #FFF0EB 1px, transparent 1px); background-size: 20px 20px;"></div>
+            <div class="absolute inset-0" style="background: linear-gradient(200deg, rgba(197,10,7,0.07) 0%, transparent 55%);"></div>
+            <div class="absolute inset-0 flex flex-col items-center justify-center gap-3">
+              <div class="flex items-center justify-center rounded-full border" style="width: 44px; height: 44px; border-color: rgba(255,240,235,0.25); background: rgba(255,240,235,0.07);">
+                <svg viewBox="0 0 24 24" fill="currentColor" style="width: 40%; height: 40%; margin-left: 10%; color: rgba(255,240,235,0.5);"><path d="M8 5.14v14l11-7-11-7z"/></svg>
+              </div>
+              <span class="font-body font-medium text-center px-2" style="color: rgba(255,240,235,0.3); font-size: 0.62rem; letter-spacing: 0.06em; text-transform: uppercase;">Ad Example 2</span>
+            </div>
+            <div class="absolute bottom-2.5 left-2.5 right-2.5">
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded font-body font-medium" style="background: rgba(255,240,235,0.07); color: rgba(255,240,235,0.3); font-size: 0.58rem; letter-spacing: 0.07em; text-transform: uppercase;"><span class="size-1 rounded-full shrink-0" style="background:#C50A07;opacity:0.7;"></span>AI UGC</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dupe 3 -->
+        <div class="relative shrink-0" aria-hidden="true" style="width: clamp(140px, 22vw, 200px); aspect-ratio: 9/16;">
+          <div class="absolute inset-0 rounded-2xl overflow-hidden" style="background: #1a1717; box-shadow: 0 4px 20px rgba(22,20,20,0.14);">
+            <div class="absolute inset-0 opacity-[0.04]" style="background-image: radial-gradient(circle, #FFF0EB 1px, transparent 1px); background-size: 20px 20px;"></div>
+            <div class="absolute inset-0" style="background: linear-gradient(140deg, rgba(255,240,235,0.04) 0%, transparent 55%);"></div>
+            <div class="absolute inset-0 flex flex-col items-center justify-center gap-3">
+              <div class="flex items-center justify-center rounded-full border" style="width: 44px; height: 44px; border-color: rgba(255,240,235,0.25); background: rgba(255,240,235,0.07);">
+                <svg viewBox="0 0 24 24" fill="currentColor" style="width: 40%; height: 40%; margin-left: 10%; color: rgba(255,240,235,0.5);"><path d="M8 5.14v14l11-7-11-7z"/></svg>
+              </div>
+              <span class="font-body font-medium text-center px-2" style="color: rgba(255,240,235,0.3); font-size: 0.62rem; letter-spacing: 0.06em; text-transform: uppercase;">Ad Example 3</span>
+            </div>
+            <div class="absolute bottom-2.5 left-2.5 right-2.5">
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded font-body font-medium" style="background: rgba(255,240,235,0.07); color: rgba(255,240,235,0.3); font-size: 0.58rem; letter-spacing: 0.07em; text-transform: uppercase;"><span class="size-1 rounded-full shrink-0" style="background:#C50A07;opacity:0.7;"></span>AI UGC</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dupe 4 -->
+        <div class="relative shrink-0" aria-hidden="true" style="width: clamp(140px, 22vw, 200px); aspect-ratio: 9/16;">
+          <div class="absolute inset-0 rounded-2xl overflow-hidden" style="background: #161414; box-shadow: 0 4px 20px rgba(22,20,20,0.14);">
+            <div class="absolute inset-0 opacity-[0.04]" style="background-image: radial-gradient(circle, #FFF0EB 1px, transparent 1px); background-size: 20px 20px;"></div>
+            <div class="absolute inset-0" style="background: linear-gradient(310deg, rgba(197,10,7,0.06) 0%, transparent 60%);"></div>
+            <div class="absolute inset-0 flex flex-col items-center justify-center gap-3">
+              <div class="flex items-center justify-center rounded-full border" style="width: 44px; height: 44px; border-color: rgba(255,240,235,0.25); background: rgba(255,240,235,0.07);">
+                <svg viewBox="0 0 24 24" fill="currentColor" style="width: 40%; height: 40%; margin-left: 10%; color: rgba(255,240,235,0.5);"><path d="M8 5.14v14l11-7-11-7z"/></svg>
+              </div>
+              <span class="font-body font-medium text-center px-2" style="color: rgba(255,240,235,0.3); font-size: 0.62rem; letter-spacing: 0.06em; text-transform: uppercase;">Ad Example 4</span>
+            </div>
+            <div class="absolute bottom-2.5 left-2.5 right-2.5">
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded font-body font-medium" style="background: rgba(255,240,235,0.07); color: rgba(255,240,235,0.3); font-size: 0.58rem; letter-spacing: 0.07em; text-transform: uppercase;"><span class="size-1 rounded-full shrink-0" style="background:#C50A07;opacity:0.7;"></span>AI UGC</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dupe 5 -->
+        <div class="relative shrink-0" aria-hidden="true" style="width: clamp(140px, 22vw, 200px); aspect-ratio: 9/16;">
+          <div class="absolute inset-0 rounded-2xl overflow-hidden" style="background: #1c1919; box-shadow: 0 4px 20px rgba(22,20,20,0.14);">
+            <div class="absolute inset-0 opacity-[0.04]" style="background-image: radial-gradient(circle, #FFF0EB 1px, transparent 1px); background-size: 20px 20px;"></div>
+            <div class="absolute inset-0" style="background: linear-gradient(230deg, rgba(255,240,235,0.04) 0%, transparent 55%);"></div>
+            <div class="absolute inset-0 flex flex-col items-center justify-center gap-3">
+              <div class="flex items-center justify-center rounded-full border" style="width: 44px; height: 44px; border-color: rgba(255,240,235,0.25); background: rgba(255,240,235,0.07);">
+                <svg viewBox="0 0 24 24" fill="currentColor" style="width: 40%; height: 40%; margin-left: 10%; color: rgba(255,240,235,0.5);"><path d="M8 5.14v14l11-7-11-7z"/></svg>
+              </div>
+              <span class="font-body font-medium text-center px-2" style="color: rgba(255,240,235,0.3); font-size: 0.62rem; letter-spacing: 0.06em; text-transform: uppercase;">Ad Example 5</span>
+            </div>
+            <div class="absolute bottom-2.5 left-2.5 right-2.5">
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded font-body font-medium" style="background: rgba(255,240,235,0.07); color: rgba(255,240,235,0.3); font-size: 0.58rem; letter-spacing: 0.07em; text-transform: uppercase;"><span class="size-1 rounded-full shrink-0" style="background:#C50A07;opacity:0.7;"></span>AI UGC</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dupe 6 -->
+        <div class="relative shrink-0" aria-hidden="true" style="width: clamp(140px, 22vw, 200px); aspect-ratio: 9/16;">
+          <div class="absolute inset-0 rounded-2xl overflow-hidden" style="background: #161414; box-shadow: 0 4px 20px rgba(22,20,20,0.14);">
+            <div class="absolute inset-0 opacity-[0.04]" style="background-image: radial-gradient(circle, #FFF0EB 1px, transparent 1px); background-size: 20px 20px;"></div>
+            <div class="absolute inset-0" style="background: linear-gradient(100deg, rgba(197,10,7,0.05) 0%, transparent 60%);"></div>
+            <div class="absolute inset-0 flex flex-col items-center justify-center gap-3">
+              <div class="flex items-center justify-center rounded-full border" style="width: 44px; height: 44px; border-color: rgba(255,240,235,0.25); background: rgba(255,240,235,0.07);">
+                <svg viewBox="0 0 24 24" fill="currentColor" style="width: 40%; height: 40%; margin-left: 10%; color: rgba(255,240,235,0.5);"><path d="M8 5.14v14l11-7-11-7z"/></svg>
+              </div>
+              <span class="font-body font-medium text-center px-2" style="color: rgba(255,240,235,0.3); font-size: 0.62rem; letter-spacing: 0.06em; text-transform: uppercase;">Ad Example 6</span>
+            </div>
+            <div class="absolute bottom-2.5 left-2.5 right-2.5">
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded font-body font-medium" style="background: rgba(255,240,235,0.07); color: rgba(255,240,235,0.3); font-size: 0.58rem; letter-spacing: 0.07em; text-transform: uppercase;"><span class="size-1 rounded-full shrink-0" style="background:#C50A07;opacity:0.7;"></span>AI UGC</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       CONTACT FORM SECTION
+  ════════════════════════════════════════════════════════════════════ -->
+  <section id="contact" class="grain" style="background-color: #161414; position: relative; overflow: hidden;">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32">
+
+      <!-- Heading block -->
+      <div class="reveal text-center mb-14 md:mb-16">
+        <p class="font-body font-medium mb-4" style="color: #C50A07; font-size: 0.8rem; letter-spacing: 0.14em; text-transform: uppercase;">Get Started</p>
+        <h2
+          class="font-display font-bold text-cream leading-tight mb-5"
+          style="font-size: clamp(2.4rem, 5.5vw, 4rem);"
+        >
+          Ready to Scale?
+        </h2>
+        <p
+          class="font-body mx-auto"
+          style="color: rgba(255,240,235,0.45); font-size: clamp(0.95rem, 2vw, 1.05rem); line-height: 1.7; max-width: 40ch;"
+        >
+          Fill out the form and we'll review your brand within 24 hours.
+        </p>
+      </div>
+
+      <!-- Form card -->
+      <div
+        class="reveal mx-auto w-full rounded-2xl px-6 py-10 sm:px-10 sm:py-12"
+        style="max-width: 560px; background: rgba(255,240,235,0.04); border: 1px solid rgba(255,240,235,0.08);"
+      >
+
+        <!-- The form -->
+        <form
+          id="contact-form"
+          novalidate
+          class="flex flex-col gap-5"
+          aria-label="Get your free content pack"
+        >
+
+          <!-- Name -->
+          <div class="flex flex-col gap-1.5">
+            <label for="cf-name" class="font-body font-medium" style="color: rgba(255,240,235,0.65); font-size: 0.85rem;">Your Name</label>
+            <input
+              id="cf-name" name="name" type="text" autocomplete="name"
+              placeholder="Your name" required
+              class="cf-input w-full font-body rounded-xl px-4 h-12 outline-none"
+              style="background: rgba(255,240,235,0.06); border: 1px solid rgba(255,240,235,0.1); color: #FFF0EB; font-size: 0.95rem; transition: border-color 200ms, box-shadow 200ms;"
+            >
+          </div>
+
+          <!-- Email -->
+          <div class="flex flex-col gap-1.5">
+            <label for="cf-email" class="font-body font-medium" style="color: rgba(255,240,235,0.65); font-size: 0.85rem;">Email Address</label>
+            <input
+              id="cf-email" name="email" type="email" autocomplete="email"
+              placeholder="you@brand.com" required
+              class="cf-input w-full font-body rounded-xl px-4 h-12 outline-none"
+              style="background: rgba(255,240,235,0.06); border: 1px solid rgba(255,240,235,0.1); color: #FFF0EB; font-size: 0.95rem; transition: border-color 200ms, box-shadow 200ms;"
+            >
+          </div>
+
+          <!-- Preferred Contact Method -->
+          <div class="flex flex-col gap-1.5">
+            <label for="cf-contact-method" class="font-body font-medium" style="color: rgba(255,240,235,0.65); font-size: 0.85rem;">Preferred Contact Method</label>
+            <div class="relative">
+              <select
+                id="cf-contact-method" name="contact_method" required
+                class="cf-input cf-select w-full font-body rounded-xl px-4 h-12 outline-none appearance-none cursor-pointer"
+                style="background: rgba(255,240,235,0.06); border: 1px solid rgba(255,240,235,0.1); color: #FFF0EB; font-size: 0.95rem; transition: border-color 200ms, box-shadow 200ms; padding-right: 2.75rem;"
+              >
+                <option value="" disabled selected style="background:#1e1b1b; color: rgba(255,240,235,0.4);">Select a channel</option>
+                <option value="Telegram"  style="background:#1e1b1b; color:#FFF0EB;">Telegram</option>
+                <option value="WhatsApp"  style="background:#1e1b1b; color:#FFF0EB;">WhatsApp</option>
+                <option value="Instagram" style="background:#1e1b1b; color:#FFF0EB;">Instagram</option>
+                <option value="Email"     style="background:#1e1b1b; color:#FFF0EB;">Email</option>
+              </select>
+              <div class="pointer-events-none absolute inset-y-0 right-3.5 flex items-center" aria-hidden="true">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: rgba(255,240,235,0.35);"><path d="M6 9l6 6 6-6"/></svg>
+              </div>
+            </div>
+            <!-- Conditional handle input -->
+            <div id="cf-contact-handle-wrap" style="max-height: 0; overflow: hidden; opacity: 0; transition: max-height 0.4s cubic-bezier(0.16,1,0.3,1), opacity 0.3s ease;">
+              <div style="padding-top: 8px;">
+                <input
+                  id="cf-contact-handle" name="contact_handle" type="text"
+                  placeholder=""
+                  class="cf-input w-full font-body rounded-xl px-4 h-12 outline-none"
+                  style="background: rgba(255,240,235,0.06); border: 1px solid rgba(255,240,235,0.1); color: #FFF0EB; font-size: 0.95rem; transition: border-color 200ms, box-shadow 200ms;"
+                >
+              </div>
+            </div>
+          </div>
+
+          <!-- Brand URL -->
+          <div class="flex flex-col gap-1.5">
+            <label for="cf-url" class="font-body font-medium" style="color: rgba(255,240,235,0.65); font-size: 0.85rem;">Brand Website</label>
+            <input
+              id="cf-url" name="brand_url" type="url" autocomplete="url"
+              placeholder="https://yourbrand.com" required
+              class="cf-input w-full font-body rounded-xl px-4 h-12 outline-none"
+              style="background: rgba(255,240,235,0.06); border: 1px solid rgba(255,240,235,0.1); color: #FFF0EB; font-size: 0.95rem; transition: border-color 200ms, box-shadow 200ms;"
+            >
+          </div>
+
+          <!-- Monthly Ad Spend -->
+          <div class="flex flex-col gap-1.5">
+            <label for="cf-spend" class="font-body font-medium" style="color: rgba(255,240,235,0.65); font-size: 0.85rem;">Monthly Ad Spend</label>
+            <div class="relative">
+              <select
+                id="cf-spend" name="ad_spend" required
+                class="cf-input cf-select w-full font-body rounded-xl px-4 h-12 outline-none appearance-none cursor-pointer"
+                style="background: rgba(255,240,235,0.06); border: 1px solid rgba(255,240,235,0.1); color: #FFF0EB; font-size: 0.95rem; transition: border-color 200ms, box-shadow 200ms; padding-right: 2.75rem;"
+              >
+                <option value="" disabled selected style="background:#1e1b1b; color: rgba(255,240,235,0.4);">Select your monthly spend</option>
+                <option value="Under $5k"   style="background:#1e1b1b; color:#FFF0EB;">Under $5k</option>
+                <option value="$5k - $10k"  style="background:#1e1b1b; color:#FFF0EB;">$5k – $10k</option>
+                <option value="$10k - $25k" style="background:#1e1b1b; color:#FFF0EB;">$10k – $25k</option>
+                <option value="$25k - $50k" style="background:#1e1b1b; color:#FFF0EB;">$25k – $50k</option>
+                <option value="$50k+"       style="background:#1e1b1b; color:#FFF0EB;">$50k+</option>
+              </select>
+              <!-- Custom chevron -->
+              <div class="pointer-events-none absolute inset-y-0 right-3.5 flex items-center" aria-hidden="true">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: rgba(255,240,235,0.35);"><path d="M6 9l6 6 6-6"/></svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Message (optional) -->
+          <div class="flex flex-col gap-1.5">
+            <label for="cf-message" class="font-body font-medium" style="color: rgba(255,240,235,0.65); font-size: 0.85rem;">
+              Message <span style="color: rgba(255,240,235,0.3); font-weight: 400;">(optional)</span>
+            </label>
+            <textarea
+              id="cf-message" name="message" rows="4"
+              placeholder="Tell us about your brand and goals…"
+              class="cf-input w-full font-body rounded-xl px-4 py-3.5 outline-none resize-none"
+              style="background: rgba(255,240,235,0.06); border: 1px solid rgba(255,240,235,0.1); color: #FFF0EB; font-size: 0.95rem; line-height: 1.6; transition: border-color 200ms, box-shadow 200ms;"
+            ></textarea>
+          </div>
+
+          <!-- Error message (hidden by default) -->
+          <div
+            id="form-error"
+            class="hidden rounded-xl px-5 py-4"
+            style="background: rgba(197,10,7,0.12); border: 1px solid rgba(197,10,7,0.3);"
+            role="alert"
+          >
+            <p id="form-error-text" class="font-body font-medium text-center" style="color: #FFF0EB; font-size: 0.875rem;"></p>
+          </div>
+
+          <!-- Submit -->
+          <button
+            type="submit"
+            id="submit-btn"
+            class="btn-red w-full inline-flex items-center justify-center gap-2.5 px-6 rounded-xl text-cream font-display font-semibold cursor-pointer
+                   focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red/70 focus-visible:ring-offset-2 focus-visible:ring-offset-dark
+                   disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none"
+            style="font-size: 1rem; min-height: 52px; margin-top: 4px;"
+          >
+            <span id="btn-label">Get My Free Content Pack</span>
+            <svg id="btn-arrow" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+            <svg id="btn-spinner" class="hidden animate-spin" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+              <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+            </svg>
+          </button>
+
+          <!-- Privacy note -->
+          <p class="text-center font-body" style="color: rgba(255,240,235,0.22); font-size: 0.78rem; line-height: 1.6;">
+            No spam. No commitments. Just a conversation.
+          </p>
+
+        </form>
+
+        <!-- Success state (hidden, replaces form with fade) -->
+        <div
+          id="form-success"
+          class="hidden flex-col items-center text-center gap-5 py-6"
+          role="status"
+          aria-live="polite"
+        >
+          <div class="flex items-center justify-center size-14 rounded-full" style="background: rgba(197,10,7,0.15);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#C50A07" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg>
+          </div>
+          <div>
+            <h3 class="font-display font-bold text-cream mb-2" style="font-size: clamp(1.2rem, 3vw, 1.5rem);">You're in.</h3>
+            <p class="font-body" style="color: rgba(255,240,235,0.55); font-size: 0.95rem; line-height: 1.7; max-width: 34ch; margin: 0 auto;">
+              Thanks! We'll review your brand and get back to you within 24 hours.
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       BACK-TO-TOP BUTTON (floating)
+  ════════════════════════════════════════════════════════════════════ -->
+  <button
+    id="back-to-top"
+    aria-label="Back to top"
+    title="Back to top"
+  >
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M12 19V5M5 12l7-7 7 7"/>
+    </svg>
+  </button>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       FOOTER
+  ════════════════════════════════════════════════════════════════════ -->
+  <footer style="background-color: #161414; border-top: 1px solid rgba(255,240,235,0.07);">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+
+      <!-- Logo -->
+      <a
+        href="#"
+        class="font-display font-bold text-cream/70 hover:text-cream transition-colors duration-200 cursor-pointer text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cream/30 rounded-sm"
+        aria-label="KIK Scale — back to top"
+      >
+        KIK Scale
+      </a>
+
+      <!-- Copyright -->
+      <p class="font-body" style="color: rgba(255,240,235,0.28); font-size: 0.82rem;">
+        &copy; 2026 KIK Scale. All rights reserved.
+      </p>
+
+      <!-- Back to top -->
+      <a
+        href="#"
+        class="inline-flex items-center gap-1.5 font-body font-medium transition-colors duration-200 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cream/30 rounded-sm"
+        style="color: rgba(255,240,235,0.28); font-size: 0.82rem;"
+        onmouseover="this.style.color='rgba(255,240,235,0.6)'"
+        onmouseout="this.style.color='rgba(255,240,235,0.28)'"
+        aria-label="Back to top"
+      >
+        Back to top
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 19V5M5 12l7-7 7 7"/>
+        </svg>
+      </a>
+
+    </div>
+  </footer>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SCRIPTS
+  ════════════════════════════════════════════════════════════════════ -->
+  <script>
+    'use strict';
+
+    const PRM = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    /* ══════════════════════════════════════════════════════════════
+       1. NAVBAR — scroll glass + back-to-top visibility
+    ══════════════════════════════════════════════════════════════ */
+    const navbar    = document.getElementById('navbar');
+    const backToTop = document.getElementById('back-to-top');
+
+    window.addEventListener('scroll', () => {
+      const y = window.scrollY;
+      navbar.classList.toggle('scrolled', y > 24);
+      backToTop.classList.toggle('visible', y > window.innerHeight * 0.75);
+    }, { passive: true });
+
+    backToTop.addEventListener('click', () =>
+      window.scrollTo({ top: 0, behavior: PRM ? 'instant' : 'smooth' })
+    );
+
+    /* ══════════════════════════════════════════════════════════════
+       2. NAV ACTIVE SECTION HIGHLIGHTING
+    ══════════════════════════════════════════════════════════════ */
+    const navLinks = document.querySelectorAll('.nav-link');
+    const sections = document.querySelectorAll('section[id]');
+    const linkMap  = {};
+
+    navLinks.forEach(l => {
+      const id = l.getAttribute('href').replace('#', '');
+      linkMap[id] = l;
+    });
+    // Pain-points section shares the Services link
+    linkMap['what-we-do']       = linkMap['services'];
+    linkMap['content-showcase'] = linkMap['results'];
+
+    new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (!e.isIntersecting) return;
+        navLinks.forEach(l => l.classList.remove('active'));
+        const m = linkMap[e.target.id];
+        if (m) m.classList.add('active');
+      });
+    }, { rootMargin: '-38% 0px -57% 0px' }).observe
+      ? sections.forEach(s =>
+          new IntersectionObserver(entries => {
+            entries.forEach(e => {
+              if (!e.isIntersecting) return;
+              navLinks.forEach(l => l.classList.remove('active'));
+              const m = linkMap[e.target.id];
+              if (m) m.classList.add('active');
+            });
+          }, { rootMargin: '-38% 0px -57% 0px' }).observe(s)
+        )
+      : null;
+
+    /* ══════════════════════════════════════════════════════════════
+       3. SCROLL-REVEAL + STEP STAGGER
+    ══════════════════════════════════════════════════════════════ */
+    if (PRM) {
+      document.querySelectorAll('.reveal').forEach(el => el.classList.add('visible'));
+    } else {
+      const ro = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add('visible');
+          ro.unobserve(entry.target);
+        });
+      }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+
+      document.querySelectorAll('.reveal').forEach(el => ro.observe(el));
+    }
+
+
+    /* ══════════════════════════════════════════════════════════════
+       5. MOBILE MENU TOGGLE
+    ══════════════════════════════════════════════════════════════ */
+    const menuBtn    = document.getElementById('menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const iconOpen   = document.getElementById('icon-open');
+    const iconClose  = document.getElementById('icon-close');
+
+    menuBtn.addEventListener('click', () => {
+      const isOpen = mobileMenu.classList.toggle('hidden');
+      menuBtn.setAttribute('aria-expanded', String(!isOpen));
+      iconOpen.classList.toggle('hidden',  !isOpen);
+      iconClose.classList.toggle('hidden',  isOpen);
+    });
+
+    mobileMenu.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        mobileMenu.classList.add('hidden');
+        menuBtn.setAttribute('aria-expanded', 'false');
+        iconOpen.classList.remove('hidden');
+        iconClose.classList.add('hidden');
+      });
+    });
+
+    /* ══════════════════════════════════════════════════════════════
+       6. CONTACT FORM
+    ══════════════════════════════════════════════════════════════ */
+    (function () {
+      const form           = document.getElementById('contact-form');
+      const submitBtn      = document.getElementById('submit-btn');
+      const btnLabel       = document.getElementById('btn-label');
+      const btnArrow       = document.getElementById('btn-arrow');
+      const btnSpinner     = document.getElementById('btn-spinner');
+      const successEl      = document.getElementById('form-success');
+      const errorEl        = document.getElementById('form-error');
+      const errorText      = document.getElementById('form-error-text');
+      const contactMethod  = document.getElementById('cf-contact-method');
+      const handleWrap     = document.getElementById('cf-contact-handle-wrap');
+      const handleInput    = document.getElementById('cf-contact-handle');
+      const emailInput     = document.getElementById('cf-email');
+
+      const WEBHOOK       = 'https://kikicontent.app.n8n.cloud/webhook-test/kik-scale-lead';
+      const FALLBACK_EMAIL = 'hello@kikscale.com';
+
+      const PLACEHOLDERS = {
+        Telegram:  '@yourusername',
+        WhatsApp:  '+1 234 567 8900',
+        Instagram: '@yourbrand',
+        Email:     'you@brand.com',
+      };
+
+      function setFieldError(el, hasError) {
+        if (hasError) {
+          el.style.borderColor = '#C50A07';
+          el.style.boxShadow   = '0 0 0 3px rgba(197,10,7,0.25)';
+        } else {
+          el.style.borderColor = '';
+          el.style.boxShadow   = '';
+        }
+      }
+
+      // Contact method dropdown — show/hide handle input
+      contactMethod.addEventListener('change', () => {
+        const method = contactMethod.value;
+        setFieldError(contactMethod, false);
+
+        if (method) {
+          handleInput.placeholder = PLACEHOLDERS[method] || '';
+          if (method === 'Email') {
+            handleInput.value = emailInput.value.trim();
+          }
+          handleWrap.style.maxHeight = '80px';
+          handleWrap.style.opacity   = '1';
+        } else {
+          handleWrap.style.maxHeight = '0';
+          handleWrap.style.opacity   = '0';
+          handleInput.value = '';
+        }
+        setFieldError(handleInput, false);
+      });
+
+      // Auto-update Email handle if user changes email after selecting Email method
+      emailInput.addEventListener('input', () => {
+        if (contactMethod.value === 'Email') {
+          handleInput.value = emailInput.value.trim();
+        }
+      });
+
+      // Clear error highlights on interaction
+      ['cf-name', 'cf-email', 'cf-url', 'cf-spend'].forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.addEventListener('input',  () => setFieldError(el, false));
+        el.addEventListener('change', () => setFieldError(el, false));
+      });
+      handleInput.addEventListener('input', () => setFieldError(handleInput, false));
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        errorEl.classList.add('hidden');
+
+        // Validate required fields
+        const requiredPairs = [
+          ['cf-name', document.getElementById('cf-name')],
+          ['cf-email', emailInput],
+          ['cf-contact-method', contactMethod],
+          ['cf-url', document.getElementById('cf-url')],
+          ['cf-spend', document.getElementById('cf-spend')],
+        ];
+
+        let firstInvalid = null;
+        requiredPairs.forEach(([, el]) => {
+          const empty = !el.value.trim();
+          setFieldError(el, empty);
+          if (empty && !firstInvalid) firstInvalid = el;
+        });
+
+        // Validate handle only when method is selected
+        const methodSelected = !!contactMethod.value;
+        if (methodSelected && !handleInput.value.trim()) {
+          setFieldError(handleInput, true);
+          if (!firstInvalid) firstInvalid = handleInput;
+        }
+
+        if (firstInvalid) {
+          if (firstInvalid === contactMethod) {
+            // scroll dropdown into view — handle wrap may be hidden
+            contactMethod.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          } else {
+            firstInvalid.focus();
+          }
+          return;
+        }
+
+        // Loading state
+        submitBtn.disabled = true;
+        btnLabel.textContent = 'Sending…';
+        btnArrow.classList.add('hidden');
+        btnSpinner.classList.remove('hidden');
+
+        const payload = {
+          name:           document.getElementById('cf-name').value.trim(),
+          email:          emailInput.value.trim(),
+          contact_method: contactMethod.value,
+          contact_handle: handleInput.value.trim(),
+          brand_url:      document.getElementById('cf-url').value.trim(),
+          ad_spend:       document.getElementById('cf-spend').value,
+          message:        (document.getElementById('cf-message').value || '').trim(),
+        };
+
+        try {
+          const res = await fetch(WEBHOOK, {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify(payload),
+          });
+
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+          // Fade form out, show success
+          form.style.transition = 'opacity 0.35s ease';
+          form.style.opacity    = '0';
+          setTimeout(() => {
+            form.classList.add('hidden');
+            successEl.style.opacity    = '0';
+            successEl.style.transition = 'opacity 0.35s ease';
+            successEl.classList.remove('hidden');
+            successEl.classList.add('flex');
+            requestAnimationFrame(() => { successEl.style.opacity = '1'; });
+          }, 360);
+
+        } catch (err) {
+          submitBtn.disabled = false;
+          btnLabel.textContent = 'Get My Free Content Pack';
+          btnArrow.classList.remove('hidden');
+          btnSpinner.classList.add('hidden');
+
+          errorText.textContent = `Something went wrong. Please email us at ${FALLBACK_EMAIL} instead.`;
+          errorEl.classList.remove('hidden');
+          errorEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+      });
+    })();
+
+    /* ══════════════════════════════════════════════════════════════
+       7. PROBLEM / SOLUTION CAROUSEL
+    ══════════════════════════════════════════════════════════════ */
+    (function () {
+      const problems = [
+        {
+          num: '01',
+          icon: '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#C50A07" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>',
+          title: 'Creative Fatigue: Your Best Ad Is Already Dying',
+          problem: 'You found a creative that worked — a talking-head testimonial, a before/after, a hook that cut through. You scaled it. Then quietly, your CPAs started climbing. You tested the audience, the landing page, the offer. Everything looked fine. The creative was the problem — and you didn\'t have anything new ready.',
+          solution: 'Your competitors aren\'t outspending you. They\'re outproducing you. We generate 20–40 fresh UGC video variants per week — different hooks, different personas, different angles — so your ad account never runs dry. No briefs. No creator chasing. No 3-week wait.'
+        },
+        {
+          num: '02',
+          icon: '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#C50A07" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>',
+          title: 'No ROAS Attribution: Paying for Content That Might Not Work',
+          problem: 'You\'re paying $5,000–$15,000/month for creative. Do you actually know which videos drove your last 100 purchases? Or are you looking at blended ROAS and hoping the agency\'s content was responsible? Most brands we talk to can\'t answer that — and their agency definitely can\'t either.',
+          solution: 'We don\'t just make content — we track it. Every video is tagged, tested, and mapped to your ad account performance. You\'ll know exactly which hook drove your lowest CPA, which persona outperformed, and which angle to scale. Creative stops being a guess and starts being a system.'
+        },
+        {
+          num: '03',
+          icon: '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#C50A07" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
+          title: 'AI Content Quality Gap: Uncanny Valley Kills Conversions',
+          problem: 'You\'ve tried one of the AI UGC tools. Maybe the avatar blinked weirdly. Maybe the product looked wrong. Maybe you ran it anyway and the comments were full of people calling it out as fake. That one bad batch cost you more than the tool saved you — in ad spend, in brand trust, and in time.',
+          solution: 'Most AI content is obviously AI. Ours isn\'t. We combine cinematic product footage, avatar refinement, and human oversight on every asset. The result looks like a creator shot it on an iPhone — because that\'s exactly what converts. Quality control isn\'t an add-on. It\'s built into every delivery.'
+        },
+        {
+          num: '04',
+          icon: '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#C50A07" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
+          title: 'Speed to Launch: Slow Creative Is Dead Creative',
+          problem: 'A trend hits on TikTok. Your competitor runs an ad against it within 48 hours. You\'re still writing a brief, waiting for a creator to accept it, then waiting for revisions. By the time your creative is live, the moment is gone and you paid for content that\'s already stale.',
+          solution: 'We operate on a 24–72 hour production cycle. Brief in, video out. No casting, no scheduling, no revision loops. When a trend spikes or a campaign needs fresh angles fast, we move at the speed your ad account requires — not the speed a traditional agency can manage.'
+        },
+        {
+          num: '05',
+          icon: '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#C50A07" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5.882V19.24a1.76 1.76 0 0 1-3.417.592l-2.147-6.15M18 13a3 3 0 0 0 0-6M5.436 13.683A4.001 4.001 0 0 1 7 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 0 1-1.564-.317z"/></svg>',
+          title: 'Inconsistent Brand Voice: 10 Creators, 10 Different Brands',
+          problem: 'You brief five creators. They all technically follow the brief. But one sounds corporate, one sounds like a teenager, one mispronounces your product name, and two use completely different value propositions. Your brand looks like it has an identity crisis — across the same week of ads.',
+          solution: 'Every piece of content runs through the same brand voice system — same tone, same messaging hierarchy, same product claims, same visual identity. Whether we produce 5 videos or 50 this week, they all sound like they came from the same brand. Consistency at scale builds brand memory that compounds into lower CAC over time.'
+        }
+      ];
+
+      let currentIdx   = 0;
+      let solutionOpen = false;
+
+      const cardInner    = document.getElementById('problem-card-inner');
+      const probNum      = document.getElementById('prob-num');
+      const probBgNum    = document.getElementById('prob-bg-num');
+      const probIcon     = document.getElementById('prob-icon');
+      const probTitle    = document.getElementById('prob-title');
+      const probBody     = document.getElementById('prob-confrontation');
+      const probSolText  = document.getElementById('prob-solution-text');
+      const probSol      = document.getElementById('prob-solution');
+      const probSolBtn   = document.getElementById('prob-solution-btn');
+      const probChevron  = document.getElementById('prob-solution-chevron');
+      const prevBtn      = document.getElementById('prob-prev');
+      const nextBtn      = document.getElementById('prob-next');
+      const prevBtnM     = document.getElementById('prob-prev-m');
+      const nextBtnM     = document.getElementById('prob-next-m');
+      const card         = document.getElementById('problem-card');
+      const progFill     = document.getElementById('prob-progress-fill');
+      const stepCurrent  = document.getElementById('prob-step-current');
+
+      function updateProgress(idx) {
+        if (progFill)    progFill.style.width     = ((idx + 1) / problems.length * 100).toFixed(1) + '%';
+        if (stepCurrent) stepCurrent.textContent  = idx + 1;
+      }
+
+      function writeContent(data) {
+        probNum.textContent      = data.num;
+        probTitle.textContent    = data.title;
+        probBody.textContent     = data.problem;
+        probSolText.textContent  = data.solution;
+        if (probBgNum) probBgNum.textContent  = data.num;
+        if (probIcon)  probIcon.innerHTML     = data.icon;
+
+        // Collapse solution
+        probSol.classList.remove('open');
+        solutionOpen = false;
+        probChevron.style.transform = '';
+      }
+
+      function showProblem(idx, direction) {
+        // direction: 1 = forward (slide from right), -1 = back (slide from left), 0 = no anim
+        currentIdx = idx;
+        updateProgress(idx);
+        writeContent(problems[idx]);
+
+        if (!PRM && direction !== 0) {
+          cardInner.classList.remove('slide-next', 'slide-prev');
+          void cardInner.offsetHeight; // force reflow to restart animation
+          cardInner.classList.add(direction > 0 ? 'slide-next' : 'slide-prev');
+        }
+      }
+
+      function goPrev() { showProblem((currentIdx - 1 + problems.length) % problems.length, -1); }
+      function goNext() { showProblem((currentIdx + 1) % problems.length,  1); }
+
+      prevBtn.addEventListener('click', goPrev);
+      nextBtn.addEventListener('click', goNext);
+      prevBtnM.addEventListener('click', goPrev);
+      nextBtnM.addEventListener('click', goNext);
+
+      // Solution toggle
+      probSolBtn.addEventListener('click', () => {
+        solutionOpen = !solutionOpen;
+        probSol.classList.toggle('open', solutionOpen);
+        probChevron.style.transform = solutionOpen ? 'rotate(180deg)' : '';
+      });
+
+      // Swipe support
+      let touchStartX = 0;
+      card.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
+      card.addEventListener('touchend',   e => {
+        const dx = e.changedTouches[0].clientX - touchStartX;
+        if (Math.abs(dx) > 48) { dx < 0 ? goNext() : goPrev(); }
+      }, { passive: true });
+
+      // Keyboard support
+      card.setAttribute('tabindex', '0');
+      card.addEventListener('keydown', e => {
+        if (e.key === 'ArrowLeft')  { e.preventDefault(); goPrev(); }
+        if (e.key === 'ArrowRight') { e.preventDefault(); goNext(); }
+      });
+
+      // Init
+      writeContent(problems[0]);
+      updateProgress(0);
+    })();
+
+  </script>
+
+</body>
+</html>
