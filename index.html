@@ -286,24 +286,84 @@
     }
 
     /* ══════════════════════════════════════════════════════════════
-       UGC MARQUEE CAROUSEL — pure CSS, no JS, no hover pause
-       The track contains 12 cards (6 originals + 6 exact dupes).
-       Animating translateX(0 → -50%) scrolls exactly one set and
-       snaps back invisibly — a perfect seamless loop.
+       UGC VIDEO SLIDER
     ══════════════════════════════════════════════════════════════ */
-    .carousel-track {
+    .ugc-slider-viewport {
       display: flex;
-      width: max-content;
-      gap: 16px;
-      animation: scroll 30s linear infinite;
-      will-change: transform;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      /* overflow visible so side cards peek out; section clips them */
+      overflow: visible;
+      position: relative;
     }
-    @keyframes scroll {
-      0%   { transform: translateX(0); }
-      100% { transform: translateX(-50%); }
+    .ugc-vid-card {
+      flex-shrink: 0;
+      position: relative;
+      width: clamp(170px, 22vw, 240px);
+      aspect-ratio: 9 / 16;
+      border-radius: 18px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 300ms ease, filter 300ms ease,
+                  opacity 300ms ease, box-shadow 300ms ease;
+    }
+    .ugc-vid-card video {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+      pointer-events: none;
+    }
+    .ugc-vid-card.ugc-active {
+      transform: scale(1);
+      filter: none;
+      opacity: 1;
+      box-shadow: 0 0 55px rgba(197,10,7,0.22), 0 24px 64px rgba(22,20,20,0.55);
+      cursor: default;
+      z-index: 2;
+    }
+    .ugc-vid-card.ugc-side {
+      transform: scale(0.85);
+      filter: blur(4px);
+      opacity: 0.6;
+      box-shadow: none;
+      z-index: 1;
+    }
+    .ugc-arrow {
+      position: absolute;
+      top: 50%;
+      translate: 0 -50%;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,240,235,0.15);
+      background: rgba(255,240,235,0.07);
+      color: rgba(255,240,235,0.5);
+      cursor: pointer;
+      transition: border-color 200ms, color 200ms, background 200ms, transform 120ms;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+    .ugc-arrow:hover  { border-color: rgba(255,240,235,0.4); color: #FFF0EB; background: rgba(255,240,235,0.12); }
+    .ugc-arrow:active { transform: translateY(-50%) scale(0.9) !important; }
+    .ugc-arrow-prev { left: clamp(8px, 2vw, 28px); }
+    .ugc-arrow-next { right: clamp(8px, 2vw, 28px); }
+    .ugc-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: rgba(255,240,235,0.22);
+      cursor: pointer;
+      transition: background 250ms ease, transform 250ms ease;
+    }
+    .ugc-dot.ugc-dot-active {
+      background: #C50A07;
+      transform: scale(1.35);
     }
     @media (prefers-reduced-motion: reduce) {
-      .carousel-track { animation: none; }
+      .ugc-vid-card { transition: none; }
     }
 
     /* ══════════════════════════════════════════════════════════════
@@ -1203,265 +1263,94 @@
   <!-- ═══════════════════════════════════════════════════════════════
        CONTENT SHOWCASE SECTION
   ════════════════════════════════════════════════════════════════════ -->
-  <section id="content-showcase" style="background-color: #FFF0EB; overflow: hidden;">
+  <section id="content-showcase" style="background-color: #161414; overflow: hidden;">
 
-    <!-- Heading — contained -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 md:pt-32 pb-12 md:pb-16">
+    <!-- Heading -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 md:pt-32 pb-14 md:pb-20">
       <div class="reveal text-center">
         <p class="font-body font-medium mb-4" style="color: #C50A07; font-size: 0.8rem; letter-spacing: 0.14em; text-transform: uppercase;">AI UGC Portfolio</p>
         <h2
           class="font-display font-bold leading-tight mb-5"
-          style="color: #161414; font-size: clamp(2.2rem, 5vw, 3.75rem);"
+          style="color: #FFF0EB; font-size: clamp(2.2rem, 5vw, 3.75rem);"
         >
           Content That Converts
         </h2>
         <p
           class="font-body mx-auto"
-          style="color: rgba(22,20,20,0.5); font-size: clamp(0.95rem, 2vw, 1.075rem); max-width: 46ch; line-height: 1.7;"
+          style="color: rgba(255,240,235,0.45); font-size: clamp(0.95rem, 2vw, 1.075rem); max-width: 46ch; line-height: 1.7;"
         >
-          Examples of AI-generated UGC ads we produce for e-commerce brands.
+          AI-generated UGC ads we produce for e-commerce brands.
         </p>
       </div>
     </div>
 
-    <!-- ── Infinite marquee carousel — full bleed ── -->
+    <!-- ── Video Slider ── -->
     <div
-      id="ugc-carousel"
-      class="relative pb-24 md:pb-32"
-      aria-label="AI UGC examples carousel"
+      id="ugc-slider"
+      class="relative pb-20 md:pb-28"
+      aria-label="AI UGC video showcase"
+      role="region"
     >
-      <!-- Left fade mask -->
-      <div class="pointer-events-none absolute inset-y-0 left-0 z-10" style="width: 80px; background: linear-gradient(to right, #FFF0EB, transparent);" aria-hidden="true"></div>
-      <!-- Right fade mask -->
-      <div class="pointer-events-none absolute inset-y-0 right-0 z-10" style="width: 80px; background: linear-gradient(to left, #FFF0EB, transparent);" aria-hidden="true"></div>
+      <!-- Prev arrow -->
+      <button class="ugc-arrow ugc-arrow-prev" aria-label="Previous video" id="ugc-prev">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <!-- Next arrow -->
+      <button class="ugc-arrow ugc-arrow-next" aria-label="Next video" id="ugc-next">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
 
-      <!--
-        Track structure: two flex groups, each with gap + padding-right equal to the gap value.
-        Both groups are pixel-identical in width → translateX(-50%) = exactly one group width → no jump.
-      -->
-      <div class="carousel-track">
+      <!-- Viewport -->
+      <div class="ugc-slider-viewport" id="ugc-viewport">
 
-        <!-- Card 1 -->
-        <div class="ugc-card group relative shrink-0 cursor-pointer" style="width: clamp(140px, 22vw, 200px); aspect-ratio: 9/16;">
-          <div class="absolute inset-0 rounded-2xl overflow-hidden transition-transform duration-300 ease-out group-hover:-translate-y-1" style="background: #161414; box-shadow: 0 4px 20px rgba(22,20,20,0.14);">
-            <div class="absolute inset-0 opacity-[0.04]" style="background-image: radial-gradient(circle, #FFF0EB 1px, transparent 1px); background-size: 20px 20px;"></div>
-            <div class="absolute inset-0" style="background: linear-gradient(160deg, rgba(255,240,235,0.05) 0%, transparent 60%);"></div>
-            <div class="absolute inset-0 flex flex-col items-center justify-center gap-3">
-              <div class="flex items-center justify-center rounded-full border transition-all duration-200 group-hover:scale-110" style="width: 44px; height: 44px; border-color: rgba(255,240,235,0.25); background: rgba(255,240,235,0.07);">
-                <svg viewBox="0 0 24 24" fill="currentColor" class="text-cream/50 group-hover:text-cream/80 transition-colors duration-200" style="width: 40%; height: 40%; margin-left: 10%;" aria-hidden="true"><path d="M8 5.14v14l11-7-11-7z"/></svg>
-              </div>
-              <span class="font-body font-medium text-center px-2" style="color: rgba(255,240,235,0.3); font-size: 0.62rem; letter-spacing: 0.06em; text-transform: uppercase;">Ad Example 1</span>
-            </div>
-            <div class="absolute bottom-2.5 left-2.5 right-2.5">
-              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded font-body font-medium" style="background: rgba(255,240,235,0.07); color: rgba(255,240,235,0.3); font-size: 0.58rem; letter-spacing: 0.07em; text-transform: uppercase;">
-                <span class="size-1 rounded-full shrink-0" style="background: #C50A07; opacity: 0.7;"></span>AI UGC
-              </span>
-            </div>
+        <!-- Video 0 -->
+        <div class="ugc-vid-card" data-idx="0">
+          <video src="assets/videos/ugc1.mp4" muted autoplay loop playsinline preload="none" aria-label="Ad example 1"></video>
+          <!-- Fallback gradient when video not yet loaded -->
+          <div class="absolute inset-0" style="background: linear-gradient(160deg, #1e1b1b 0%, #161414 100%); z-index: -1;"></div>
+          <!-- Badge -->
+          <div class="absolute bottom-3 left-3 right-3 z-10">
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded font-body font-medium" style="background: rgba(255,240,235,0.09); color: rgba(255,240,235,0.35); font-size: 0.6rem; letter-spacing: 0.07em; text-transform: uppercase; backdrop-filter: blur(6px);">
+              <span style="width: 5px; height: 5px; border-radius: 50%; background: #C50A07; opacity: 0.8; flex-shrink: 0; display: inline-block;"></span>AI UGC
+            </span>
           </div>
         </div>
 
-        <!-- Card 2 -->
-        <div class="ugc-card group relative shrink-0 cursor-pointer" style="width: clamp(140px, 22vw, 200px); aspect-ratio: 9/16;">
-          <div class="absolute inset-0 rounded-2xl overflow-hidden transition-transform duration-300 ease-out group-hover:-translate-y-1" style="background: #1e1b1b; box-shadow: 0 4px 20px rgba(22,20,20,0.14);">
-            <div class="absolute inset-0 opacity-[0.04]" style="background-image: radial-gradient(circle, #FFF0EB 1px, transparent 1px); background-size: 20px 20px;"></div>
-            <div class="absolute inset-0" style="background: linear-gradient(200deg, rgba(197,10,7,0.07) 0%, transparent 55%);"></div>
-            <div class="absolute inset-0 flex flex-col items-center justify-center gap-3">
-              <div class="flex items-center justify-center rounded-full border transition-all duration-200 group-hover:scale-110" style="width: 44px; height: 44px; border-color: rgba(255,240,235,0.25); background: rgba(255,240,235,0.07);">
-                <svg viewBox="0 0 24 24" fill="currentColor" class="text-cream/50 group-hover:text-cream/80 transition-colors duration-200" style="width: 40%; height: 40%; margin-left: 10%;" aria-hidden="true"><path d="M8 5.14v14l11-7-11-7z"/></svg>
-              </div>
-              <span class="font-body font-medium text-center px-2" style="color: rgba(255,240,235,0.3); font-size: 0.62rem; letter-spacing: 0.06em; text-transform: uppercase;">Ad Example 2</span>
-            </div>
-            <div class="absolute bottom-2.5 left-2.5 right-2.5">
-              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded font-body font-medium" style="background: rgba(255,240,235,0.07); color: rgba(255,240,235,0.3); font-size: 0.58rem; letter-spacing: 0.07em; text-transform: uppercase;">
-                <span class="size-1 rounded-full shrink-0" style="background: #C50A07; opacity: 0.7;"></span>AI UGC
-              </span>
-            </div>
+        <!-- Video 1 -->
+        <div class="ugc-vid-card" data-idx="1">
+          <video src="assets/videos/ugc2.mp4" muted autoplay loop playsinline preload="none" aria-label="Ad example 2"></video>
+          <div class="absolute inset-0" style="background: linear-gradient(200deg, #1e1a1a 0%, #161414 100%); z-index: -1;"></div>
+          <div class="absolute bottom-3 left-3 right-3 z-10">
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded font-body font-medium" style="background: rgba(255,240,235,0.09); color: rgba(255,240,235,0.35); font-size: 0.6rem; letter-spacing: 0.07em; text-transform: uppercase; backdrop-filter: blur(6px);">
+              <span style="width: 5px; height: 5px; border-radius: 50%; background: #C50A07; opacity: 0.8; flex-shrink: 0; display: inline-block;"></span>AI UGC
+            </span>
           </div>
         </div>
 
-        <!-- Card 3 -->
-        <div class="ugc-card group relative shrink-0 cursor-pointer" style="width: clamp(140px, 22vw, 200px); aspect-ratio: 9/16;">
-          <div class="absolute inset-0 rounded-2xl overflow-hidden transition-transform duration-300 ease-out group-hover:-translate-y-1" style="background: #1a1717; box-shadow: 0 4px 20px rgba(22,20,20,0.14);">
-            <div class="absolute inset-0 opacity-[0.04]" style="background-image: radial-gradient(circle, #FFF0EB 1px, transparent 1px); background-size: 20px 20px;"></div>
-            <div class="absolute inset-0" style="background: linear-gradient(140deg, rgba(255,240,235,0.04) 0%, transparent 55%);"></div>
-            <div class="absolute inset-0 flex flex-col items-center justify-center gap-3">
-              <div class="flex items-center justify-center rounded-full border transition-all duration-200 group-hover:scale-110" style="width: 44px; height: 44px; border-color: rgba(255,240,235,0.25); background: rgba(255,240,235,0.07);">
-                <svg viewBox="0 0 24 24" fill="currentColor" class="text-cream/50 group-hover:text-cream/80 transition-colors duration-200" style="width: 40%; height: 40%; margin-left: 10%;" aria-hidden="true"><path d="M8 5.14v14l11-7-11-7z"/></svg>
-              </div>
-              <span class="font-body font-medium text-center px-2" style="color: rgba(255,240,235,0.3); font-size: 0.62rem; letter-spacing: 0.06em; text-transform: uppercase;">Ad Example 3</span>
-            </div>
-            <div class="absolute bottom-2.5 left-2.5 right-2.5">
-              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded font-body font-medium" style="background: rgba(255,240,235,0.07); color: rgba(255,240,235,0.3); font-size: 0.58rem; letter-spacing: 0.07em; text-transform: uppercase;">
-                <span class="size-1 rounded-full shrink-0" style="background: #C50A07; opacity: 0.7;"></span>AI UGC
-              </span>
-            </div>
+        <!-- Video 2 -->
+        <div class="ugc-vid-card" data-idx="2">
+          <video src="assets/videos/ugc3.mp4" muted autoplay loop playsinline preload="none" aria-label="Ad example 3"></video>
+          <div class="absolute inset-0" style="background: linear-gradient(140deg, #1a1717 0%, #161414 100%); z-index: -1;"></div>
+          <div class="absolute bottom-3 left-3 right-3 z-10">
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded font-body font-medium" style="background: rgba(255,240,235,0.09); color: rgba(255,240,235,0.35); font-size: 0.6rem; letter-spacing: 0.07em; text-transform: uppercase; backdrop-filter: blur(6px);">
+              <span style="width: 5px; height: 5px; border-radius: 50%; background: #C50A07; opacity: 0.8; flex-shrink: 0; display: inline-block;"></span>AI UGC
+            </span>
           </div>
         </div>
 
-        <!-- Card 4 -->
-        <div class="ugc-card group relative shrink-0 cursor-pointer" style="width: clamp(140px, 22vw, 200px); aspect-ratio: 9/16;">
-          <div class="absolute inset-0 rounded-2xl overflow-hidden transition-transform duration-300 ease-out group-hover:-translate-y-1" style="background: #161414; box-shadow: 0 4px 20px rgba(22,20,20,0.14);">
-            <div class="absolute inset-0 opacity-[0.04]" style="background-image: radial-gradient(circle, #FFF0EB 1px, transparent 1px); background-size: 20px 20px;"></div>
-            <div class="absolute inset-0" style="background: linear-gradient(310deg, rgba(197,10,7,0.06) 0%, transparent 60%);"></div>
-            <div class="absolute inset-0 flex flex-col items-center justify-center gap-3">
-              <div class="flex items-center justify-center rounded-full border transition-all duration-200 group-hover:scale-110" style="width: 44px; height: 44px; border-color: rgba(255,240,235,0.25); background: rgba(255,240,235,0.07);">
-                <svg viewBox="0 0 24 24" fill="currentColor" class="text-cream/50 group-hover:text-cream/80 transition-colors duration-200" style="width: 40%; height: 40%; margin-left: 10%;" aria-hidden="true"><path d="M8 5.14v14l11-7-11-7z"/></svg>
-              </div>
-              <span class="font-body font-medium text-center px-2" style="color: rgba(255,240,235,0.3); font-size: 0.62rem; letter-spacing: 0.06em; text-transform: uppercase;">Ad Example 4</span>
-            </div>
-            <div class="absolute bottom-2.5 left-2.5 right-2.5">
-              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded font-body font-medium" style="background: rgba(255,240,235,0.07); color: rgba(255,240,235,0.3); font-size: 0.58rem; letter-spacing: 0.07em; text-transform: uppercase;">
-                <span class="size-1 rounded-full shrink-0" style="background: #C50A07; opacity: 0.7;"></span>AI UGC
-              </span>
-            </div>
-          </div>
-        </div>
+      </div><!-- /ugc-viewport -->
 
-        <!-- Card 5 -->
-        <div class="ugc-card group relative shrink-0 cursor-pointer" style="width: clamp(140px, 22vw, 200px); aspect-ratio: 9/16;">
-          <div class="absolute inset-0 rounded-2xl overflow-hidden transition-transform duration-300 ease-out group-hover:-translate-y-1" style="background: #1c1919; box-shadow: 0 4px 20px rgba(22,20,20,0.14);">
-            <div class="absolute inset-0 opacity-[0.04]" style="background-image: radial-gradient(circle, #FFF0EB 1px, transparent 1px); background-size: 20px 20px;"></div>
-            <div class="absolute inset-0" style="background: linear-gradient(230deg, rgba(255,240,235,0.04) 0%, transparent 55%);"></div>
-            <div class="absolute inset-0 flex flex-col items-center justify-center gap-3">
-              <div class="flex items-center justify-center rounded-full border transition-all duration-200 group-hover:scale-110" style="width: 44px; height: 44px; border-color: rgba(255,240,235,0.25); background: rgba(255,240,235,0.07);">
-                <svg viewBox="0 0 24 24" fill="currentColor" class="text-cream/50 group-hover:text-cream/80 transition-colors duration-200" style="width: 40%; height: 40%; margin-left: 10%;" aria-hidden="true"><path d="M8 5.14v14l11-7-11-7z"/></svg>
-              </div>
-              <span class="font-body font-medium text-center px-2" style="color: rgba(255,240,235,0.3); font-size: 0.62rem; letter-spacing: 0.06em; text-transform: uppercase;">Ad Example 5</span>
-            </div>
-            <div class="absolute bottom-2.5 left-2.5 right-2.5">
-              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded font-body font-medium" style="background: rgba(255,240,235,0.07); color: rgba(255,240,235,0.3); font-size: 0.58rem; letter-spacing: 0.07em; text-transform: uppercase;">
-                <span class="size-1 rounded-full shrink-0" style="background: #C50A07; opacity: 0.7;"></span>AI UGC
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Card 6 -->
-        <div class="ugc-card group relative shrink-0 cursor-pointer" style="width: clamp(140px, 22vw, 200px); aspect-ratio: 9/16;">
-          <div class="absolute inset-0 rounded-2xl overflow-hidden transition-transform duration-300 ease-out group-hover:-translate-y-1" style="background: #161414; box-shadow: 0 4px 20px rgba(22,20,20,0.14);">
-            <div class="absolute inset-0 opacity-[0.04]" style="background-image: radial-gradient(circle, #FFF0EB 1px, transparent 1px); background-size: 20px 20px;"></div>
-            <div class="absolute inset-0" style="background: linear-gradient(100deg, rgba(197,10,7,0.05) 0%, transparent 60%);"></div>
-            <div class="absolute inset-0 flex flex-col items-center justify-center gap-3">
-              <div class="flex items-center justify-center rounded-full border transition-all duration-200 group-hover:scale-110" style="width: 44px; height: 44px; border-color: rgba(255,240,235,0.25); background: rgba(255,240,235,0.07);">
-                <svg viewBox="0 0 24 24" fill="currentColor" class="text-cream/50 group-hover:text-cream/80 transition-colors duration-200" style="width: 40%; height: 40%; margin-left: 10%;" aria-hidden="true"><path d="M8 5.14v14l11-7-11-7z"/></svg>
-              </div>
-              <span class="font-body font-medium text-center px-2" style="color: rgba(255,240,235,0.3); font-size: 0.62rem; letter-spacing: 0.06em; text-transform: uppercase;">Ad Example 6</span>
-            </div>
-            <div class="absolute bottom-2.5 left-2.5 right-2.5">
-              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded font-body font-medium" style="background: rgba(255,240,235,0.07); color: rgba(255,240,235,0.3); font-size: 0.58rem; letter-spacing: 0.07em; text-transform: uppercase;">
-                <span class="size-1 rounded-full shrink-0" style="background: #C50A07; opacity: 0.7;"></span>AI UGC
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Duplicate set (aria-hidden) -->
-
-        <!-- Dupe 1 -->
-        <div class="relative shrink-0" aria-hidden="true" style="width: clamp(140px, 22vw, 200px); aspect-ratio: 9/16;">
-          <div class="absolute inset-0 rounded-2xl overflow-hidden" style="background: #161414; box-shadow: 0 4px 20px rgba(22,20,20,0.14);">
-            <div class="absolute inset-0 opacity-[0.04]" style="background-image: radial-gradient(circle, #FFF0EB 1px, transparent 1px); background-size: 20px 20px;"></div>
-            <div class="absolute inset-0" style="background: linear-gradient(160deg, rgba(255,240,235,0.05) 0%, transparent 60%);"></div>
-            <div class="absolute inset-0 flex flex-col items-center justify-center gap-3">
-              <div class="flex items-center justify-center rounded-full border" style="width: 44px; height: 44px; border-color: rgba(255,240,235,0.25); background: rgba(255,240,235,0.07);">
-                <svg viewBox="0 0 24 24" fill="currentColor" style="width: 40%; height: 40%; margin-left: 10%; color: rgba(255,240,235,0.5);"><path d="M8 5.14v14l11-7-11-7z"/></svg>
-              </div>
-              <span class="font-body font-medium text-center px-2" style="color: rgba(255,240,235,0.3); font-size: 0.62rem; letter-spacing: 0.06em; text-transform: uppercase;">Ad Example 1</span>
-            </div>
-            <div class="absolute bottom-2.5 left-2.5 right-2.5">
-              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded font-body font-medium" style="background: rgba(255,240,235,0.07); color: rgba(255,240,235,0.3); font-size: 0.58rem; letter-spacing: 0.07em; text-transform: uppercase;"><span class="size-1 rounded-full shrink-0" style="background:#C50A07;opacity:0.7;"></span>AI UGC</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Dupe 2 -->
-        <div class="relative shrink-0" aria-hidden="true" style="width: clamp(140px, 22vw, 200px); aspect-ratio: 9/16;">
-          <div class="absolute inset-0 rounded-2xl overflow-hidden" style="background: #1e1b1b; box-shadow: 0 4px 20px rgba(22,20,20,0.14);">
-            <div class="absolute inset-0 opacity-[0.04]" style="background-image: radial-gradient(circle, #FFF0EB 1px, transparent 1px); background-size: 20px 20px;"></div>
-            <div class="absolute inset-0" style="background: linear-gradient(200deg, rgba(197,10,7,0.07) 0%, transparent 55%);"></div>
-            <div class="absolute inset-0 flex flex-col items-center justify-center gap-3">
-              <div class="flex items-center justify-center rounded-full border" style="width: 44px; height: 44px; border-color: rgba(255,240,235,0.25); background: rgba(255,240,235,0.07);">
-                <svg viewBox="0 0 24 24" fill="currentColor" style="width: 40%; height: 40%; margin-left: 10%; color: rgba(255,240,235,0.5);"><path d="M8 5.14v14l11-7-11-7z"/></svg>
-              </div>
-              <span class="font-body font-medium text-center px-2" style="color: rgba(255,240,235,0.3); font-size: 0.62rem; letter-spacing: 0.06em; text-transform: uppercase;">Ad Example 2</span>
-            </div>
-            <div class="absolute bottom-2.5 left-2.5 right-2.5">
-              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded font-body font-medium" style="background: rgba(255,240,235,0.07); color: rgba(255,240,235,0.3); font-size: 0.58rem; letter-spacing: 0.07em; text-transform: uppercase;"><span class="size-1 rounded-full shrink-0" style="background:#C50A07;opacity:0.7;"></span>AI UGC</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Dupe 3 -->
-        <div class="relative shrink-0" aria-hidden="true" style="width: clamp(140px, 22vw, 200px); aspect-ratio: 9/16;">
-          <div class="absolute inset-0 rounded-2xl overflow-hidden" style="background: #1a1717; box-shadow: 0 4px 20px rgba(22,20,20,0.14);">
-            <div class="absolute inset-0 opacity-[0.04]" style="background-image: radial-gradient(circle, #FFF0EB 1px, transparent 1px); background-size: 20px 20px;"></div>
-            <div class="absolute inset-0" style="background: linear-gradient(140deg, rgba(255,240,235,0.04) 0%, transparent 55%);"></div>
-            <div class="absolute inset-0 flex flex-col items-center justify-center gap-3">
-              <div class="flex items-center justify-center rounded-full border" style="width: 44px; height: 44px; border-color: rgba(255,240,235,0.25); background: rgba(255,240,235,0.07);">
-                <svg viewBox="0 0 24 24" fill="currentColor" style="width: 40%; height: 40%; margin-left: 10%; color: rgba(255,240,235,0.5);"><path d="M8 5.14v14l11-7-11-7z"/></svg>
-              </div>
-              <span class="font-body font-medium text-center px-2" style="color: rgba(255,240,235,0.3); font-size: 0.62rem; letter-spacing: 0.06em; text-transform: uppercase;">Ad Example 3</span>
-            </div>
-            <div class="absolute bottom-2.5 left-2.5 right-2.5">
-              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded font-body font-medium" style="background: rgba(255,240,235,0.07); color: rgba(255,240,235,0.3); font-size: 0.58rem; letter-spacing: 0.07em; text-transform: uppercase;"><span class="size-1 rounded-full shrink-0" style="background:#C50A07;opacity:0.7;"></span>AI UGC</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Dupe 4 -->
-        <div class="relative shrink-0" aria-hidden="true" style="width: clamp(140px, 22vw, 200px); aspect-ratio: 9/16;">
-          <div class="absolute inset-0 rounded-2xl overflow-hidden" style="background: #161414; box-shadow: 0 4px 20px rgba(22,20,20,0.14);">
-            <div class="absolute inset-0 opacity-[0.04]" style="background-image: radial-gradient(circle, #FFF0EB 1px, transparent 1px); background-size: 20px 20px;"></div>
-            <div class="absolute inset-0" style="background: linear-gradient(310deg, rgba(197,10,7,0.06) 0%, transparent 60%);"></div>
-            <div class="absolute inset-0 flex flex-col items-center justify-center gap-3">
-              <div class="flex items-center justify-center rounded-full border" style="width: 44px; height: 44px; border-color: rgba(255,240,235,0.25); background: rgba(255,240,235,0.07);">
-                <svg viewBox="0 0 24 24" fill="currentColor" style="width: 40%; height: 40%; margin-left: 10%; color: rgba(255,240,235,0.5);"><path d="M8 5.14v14l11-7-11-7z"/></svg>
-              </div>
-              <span class="font-body font-medium text-center px-2" style="color: rgba(255,240,235,0.3); font-size: 0.62rem; letter-spacing: 0.06em; text-transform: uppercase;">Ad Example 4</span>
-            </div>
-            <div class="absolute bottom-2.5 left-2.5 right-2.5">
-              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded font-body font-medium" style="background: rgba(255,240,235,0.07); color: rgba(255,240,235,0.3); font-size: 0.58rem; letter-spacing: 0.07em; text-transform: uppercase;"><span class="size-1 rounded-full shrink-0" style="background:#C50A07;opacity:0.7;"></span>AI UGC</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Dupe 5 -->
-        <div class="relative shrink-0" aria-hidden="true" style="width: clamp(140px, 22vw, 200px); aspect-ratio: 9/16;">
-          <div class="absolute inset-0 rounded-2xl overflow-hidden" style="background: #1c1919; box-shadow: 0 4px 20px rgba(22,20,20,0.14);">
-            <div class="absolute inset-0 opacity-[0.04]" style="background-image: radial-gradient(circle, #FFF0EB 1px, transparent 1px); background-size: 20px 20px;"></div>
-            <div class="absolute inset-0" style="background: linear-gradient(230deg, rgba(255,240,235,0.04) 0%, transparent 55%);"></div>
-            <div class="absolute inset-0 flex flex-col items-center justify-center gap-3">
-              <div class="flex items-center justify-center rounded-full border" style="width: 44px; height: 44px; border-color: rgba(255,240,235,0.25); background: rgba(255,240,235,0.07);">
-                <svg viewBox="0 0 24 24" fill="currentColor" style="width: 40%; height: 40%; margin-left: 10%; color: rgba(255,240,235,0.5);"><path d="M8 5.14v14l11-7-11-7z"/></svg>
-              </div>
-              <span class="font-body font-medium text-center px-2" style="color: rgba(255,240,235,0.3); font-size: 0.62rem; letter-spacing: 0.06em; text-transform: uppercase;">Ad Example 5</span>
-            </div>
-            <div class="absolute bottom-2.5 left-2.5 right-2.5">
-              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded font-body font-medium" style="background: rgba(255,240,235,0.07); color: rgba(255,240,235,0.3); font-size: 0.58rem; letter-spacing: 0.07em; text-transform: uppercase;"><span class="size-1 rounded-full shrink-0" style="background:#C50A07;opacity:0.7;"></span>AI UGC</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Dupe 6 -->
-        <div class="relative shrink-0" aria-hidden="true" style="width: clamp(140px, 22vw, 200px); aspect-ratio: 9/16;">
-          <div class="absolute inset-0 rounded-2xl overflow-hidden" style="background: #161414; box-shadow: 0 4px 20px rgba(22,20,20,0.14);">
-            <div class="absolute inset-0 opacity-[0.04]" style="background-image: radial-gradient(circle, #FFF0EB 1px, transparent 1px); background-size: 20px 20px;"></div>
-            <div class="absolute inset-0" style="background: linear-gradient(100deg, rgba(197,10,7,0.05) 0%, transparent 60%);"></div>
-            <div class="absolute inset-0 flex flex-col items-center justify-center gap-3">
-              <div class="flex items-center justify-center rounded-full border" style="width: 44px; height: 44px; border-color: rgba(255,240,235,0.25); background: rgba(255,240,235,0.07);">
-                <svg viewBox="0 0 24 24" fill="currentColor" style="width: 40%; height: 40%; margin-left: 10%; color: rgba(255,240,235,0.5);"><path d="M8 5.14v14l11-7-11-7z"/></svg>
-              </div>
-              <span class="font-body font-medium text-center px-2" style="color: rgba(255,240,235,0.3); font-size: 0.62rem; letter-spacing: 0.06em; text-transform: uppercase;">Ad Example 6</span>
-            </div>
-            <div class="absolute bottom-2.5 left-2.5 right-2.5">
-              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded font-body font-medium" style="background: rgba(255,240,235,0.07); color: rgba(255,240,235,0.3); font-size: 0.58rem; letter-spacing: 0.07em; text-transform: uppercase;"><span class="size-1 rounded-full shrink-0" style="background:#C50A07;opacity:0.7;"></span>AI UGC</span>
-            </div>
-          </div>
-        </div>
-
+      <!-- Dots -->
+      <div class="flex items-center justify-center gap-2.5 mt-10" id="ugc-dots" aria-label="Slide indicators">
+        <button class="ugc-dot" data-dot="0" aria-label="Go to video 1"></button>
+        <button class="ugc-dot" data-dot="1" aria-label="Go to video 2"></button>
+        <button class="ugc-dot" data-dot="2" aria-label="Go to video 3"></button>
       </div>
-    </div>
+
+    </div><!-- /ugc-slider -->
+
   </section>
+
 
 
   <!-- ═══════════════════════════════════════════════════════════════
@@ -1815,7 +1704,91 @@
     });
 
     /* ══════════════════════════════════════════════════════════════
-       6. CONTACT FORM
+       6. UGC VIDEO SLIDER
+    ══════════════════════════════════════════════════════════════ */
+    (function () {
+      const TOTAL    = 3;
+      let activeIdx  = 1; // start with center (index 1) active
+      const cards    = Array.from(document.querySelectorAll('.ugc-vid-card'));
+      const dots     = Array.from(document.querySelectorAll('.ugc-dot'));
+      const prevBtn  = document.getElementById('ugc-prev');
+      const nextBtn  = document.getElementById('ugc-next');
+
+      // The 3 logical positions relative to active: -1 (left), 0 (center), +1 (right)
+      // We always arrange cards so data-idx 0,1,2 are in DOM order,
+      // and we assign .ugc-active / .ugc-side based on logical position.
+      function getPosition(cardIdx) {
+        // offset from active, wrapping around
+        let offset = ((cardIdx - activeIdx) % TOTAL + TOTAL) % TOTAL;
+        // 0 = center, 1 = right, 2 = left
+        if (offset === 0) return 'center';
+        if (offset === 1) return 'right';
+        return 'left';
+      }
+
+      function applyState() {
+        cards.forEach((card, i) => {
+          const pos = getPosition(i);
+          card.classList.toggle('ugc-active', pos === 'center');
+          card.classList.toggle('ugc-side',   pos !== 'center');
+          card.style.order = pos === 'left' ? '0' : pos === 'center' ? '1' : '2';
+          // Make side cards non-interactive for a11y
+          card.setAttribute('tabindex', pos === 'center' ? '-1' : '0');
+          card.setAttribute('aria-label',
+            pos === 'center'
+              ? `Active video ${activeIdx + 1}`
+              : `Video ${i + 1} — click to view`
+          );
+        });
+        dots.forEach((dot, i) => {
+          dot.classList.toggle('ugc-dot-active', i === activeIdx);
+        });
+      }
+
+      function goTo(idx) {
+        activeIdx = ((idx % TOTAL) + TOTAL) % TOTAL;
+        applyState();
+      }
+
+      // Arrow buttons
+      prevBtn.addEventListener('click', () => goTo(activeIdx - 1));
+      nextBtn.addEventListener('click', () => goTo(activeIdx + 1));
+
+      // Dot buttons
+      dots.forEach(dot => {
+        dot.addEventListener('click', () => goTo(parseInt(dot.dataset.dot, 10)));
+      });
+
+      // Click on a side card to bring it to center
+      cards.forEach((card, i) => {
+        card.addEventListener('click', () => {
+          if (getPosition(i) !== 'center') goTo(i);
+        });
+      });
+
+      // Touch swipe
+      const viewport = document.getElementById('ugc-viewport');
+      let touchStartX = 0;
+      viewport.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
+      viewport.addEventListener('touchend',   e => {
+        const dx = e.changedTouches[0].clientX - touchStartX;
+        if (Math.abs(dx) > 40) dx < 0 ? goTo(activeIdx + 1) : goTo(activeIdx - 1);
+      }, { passive: true });
+
+      // Keyboard support
+      document.addEventListener('keydown', e => {
+        const slider = document.getElementById('ugc-slider');
+        if (!slider || !slider.matches(':focus-within')) return;
+        if (e.key === 'ArrowLeft')  goTo(activeIdx - 1);
+        if (e.key === 'ArrowRight') goTo(activeIdx + 1);
+      });
+
+      // Init — start with video index 1 as center
+      applyState();
+    })();
+
+    /* ══════════════════════════════════════════════════════════════
+       6b. CONTACT FORM
     ══════════════════════════════════════════════════════════════ */
     (function () {
       const form           = document.getElementById('contact-form');
@@ -1975,7 +1948,7 @@
     })();
 
     /* ══════════════════════════════════════════════════════════════
-       7. PROBLEM / SOLUTION CAROUSEL
+       8. PROBLEM / SOLUTION CAROUSEL
     ══════════════════════════════════════════════════════════════ */
     (function () {
       const problems = [
